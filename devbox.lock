@@ -65,6 +65,130 @@
           "store_path": "/nix/store/dfs59hwhc4mb4hdk77nc5dd39k2v2qs2-nodejs-21.7.3"
         }
       }
+    },
+    "openssl_3_2@3.2.1": {
+      "last_modified": "2024-04-21T11:44:28-04:00",
+      "resolved": "github:NixOS/nixpkgs/69ee1d82f1fa4c70a3dc9a64111e7eef3b8e4527#openssl_3_2",
+      "source": "devbox-search",
+      "version": "3.2.1",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/0dny5zjas2h1d007dkf2i93gh01s0dy7-openssl-3.2.1-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/dk932p2nvgrjy3hlxbmkqav999ng49l6-openssl-3.2.1-man",
+              "default": true
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/fs5yvginhjymkcjx2spcds0wd2fc7wnp-openssl-3.2.1-dev"
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/8hz2s068hj8x18k4wwg47x41gwr0v7sm-openssl-3.2.1-doc"
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/n8jr0nzgbhhb2q5jvwgf3rh1xy03fqn4-openssl-3.2.1"
+            }
+          ],
+          "store_path": "/nix/store/0dny5zjas2h1d007dkf2i93gh01s0dy7-openssl-3.2.1-bin"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/y41v6cg3zvyj631w4hx58wxcva2zklb6-openssl-3.2.1-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/m2s1c7wvy6z3s3pir20xl537d8krdldn-openssl-3.2.1-man",
+              "default": true
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/lj7dxxxglp6c2064jghnwfca67zcjf8s-openssl-3.2.1"
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/smg0yarcfp7qqp0rf7xpg9yyhkmsgh5q-openssl-3.2.1-debug"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/xfjrsvsy5c7lg6hbrwvlc0xjjl1h42yh-openssl-3.2.1-dev"
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/w2ywqj3wpfm27s8xkn6rp57b1i9vxfpg-openssl-3.2.1-doc"
+            }
+          ],
+          "store_path": "/nix/store/y41v6cg3zvyj631w4hx58wxcva2zklb6-openssl-3.2.1-bin"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/za39bp0sx6rvmr9xv7zxb2n0pdvcmnh0-openssl-3.2.1-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/vncxl4cxairrn3wc07xlm22kcdd9h4rg-openssl-3.2.1-man",
+              "default": true
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/a097x9wipf6d6bw6asw32bvm7xbgvxbj-openssl-3.2.1-dev"
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/pwxwv6fxq1dklzk7qdhvjg8ky6q1m262-openssl-3.2.1-doc"
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/b4aljgwfnkkpy72xiwisly4fr8bqiadq-openssl-3.2.1"
+            }
+          ],
+          "store_path": "/nix/store/za39bp0sx6rvmr9xv7zxb2n0pdvcmnh0-openssl-3.2.1-bin"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "bin",
+              "path": "/nix/store/yr66xpd0v04d587qhasnwkazarc2zvv8-openssl-3.2.1-bin",
+              "default": true
+            },
+            {
+              "name": "man",
+              "path": "/nix/store/hw6iplazkkksjb2srjz9lrjcv6vnzlsv-openssl-3.2.1-man",
+              "default": true
+            },
+            {
+              "name": "debug",
+              "path": "/nix/store/7mbb2m1isqdh7cxzgig6skmircvrrpws-openssl-3.2.1-debug"
+            },
+            {
+              "name": "dev",
+              "path": "/nix/store/wqamm9a4fcia0d85c9c1b9ybvnnqj3di-openssl-3.2.1-dev"
+            },
+            {
+              "name": "doc",
+              "path": "/nix/store/iiy8b80zwbch13yxsjdzwmdvxjmy62hz-openssl-3.2.1-doc"
+            },
+            {
+              "name": "out",
+              "path": "/nix/store/lzcwb8rnlpy2g9fpp786cg32xz1hv5p6-openssl-3.2.1"
+            }
+          ],
+          "store_path": "/nix/store/yr66xpd0v04d587qhasnwkazarc2zvv8-openssl-3.2.1-bin"
+        }
+      }
     }
   }
 }
