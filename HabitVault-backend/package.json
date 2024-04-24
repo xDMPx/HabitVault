@@ -2,20 +2,25 @@
   "name": "habitvault-backend",
   "version": "1.0.0",
   "description": "HabitVault Backend",
-  "main": "app.js",
+  "main": "out/app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js",
-    "devstart": "nodemon app.js"
+    "build": "npx tsc",
+    "start": "node out/app.js",
+    "devstart": "nodemon app.ts"
   },
   "author": "xDMPx",
   "license": "MIT",
   "dependencies": {
     "@prisma/client": "^5.13.0",
+    "cors": "^2.8.5",
     "express": "^4.19.2"
   },
   "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.12.7",
     "nodemon": "^3.1.0",
-    "prisma": "^5.13.0"
+    "prisma": "^5.13.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
   }
 }
