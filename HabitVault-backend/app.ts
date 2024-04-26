@@ -30,6 +30,12 @@ app.get('/users', restrict, async (req: Request, res: Response) => {
     res.json(users)
 })
 
+app.get('/authorized', restrict, async (req: Request, res: Response) => {
+    console.log(`${req.method} ${req.url}`)
+
+    res.json()
+})
+
 interface RegisterBody {
     username: string | undefined,
     password: string | undefined
@@ -87,7 +93,7 @@ app.post('/login', async (req: TypedRequest<LoginBody>, res: Response) => {
         })
         if (user?.password === password) {
             console.log("loged in")
-            req.session.regenerate(function () {
+            req.session.regenerate(function() {
                 console.log(`loged in regenerat ${req.session.id}`)
                 req.session.userid = user.id
                 res.json()

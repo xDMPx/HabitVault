@@ -1,7 +1,10 @@
+<script setup lang="ts">
+</script>
+
 <template>
-    <div class="create-account">
-        <h1>Create Account</h1>
-        <form @submit.prevent="handleAccountCreation">
+    <div class="login">
+        <h1>Login</h1>
+        <form @submit.prevent="handleLogin">
             <div>
                 <label for="Username">Username:</label><br>
                 <input type="text" id="username" placeholder="Username" v-model="formData.username" required>
@@ -11,16 +14,14 @@
                 <input type="password" id="password" placeholder="Password" v-model="formData.password" required>
             </div>
             <div>
-                <button type="submit">Register</button>
+                <button type="submit">Login</button>
             </div>
         </form>
     </div>
 </template>
 
-
 <script lang="ts">
 import axios from 'axios'
-
 export default {
     data() {
         return {
@@ -31,20 +32,20 @@ export default {
         }
     },
     methods: {
-        handleAccountCreation() {
-            axios.post('http://localhost:3000/register', this.formData)
+        handleLogin() {
+            console.log(this.formData)
+            axios.post('http://localhost:3000/login', this.formData)
                 .then((response) => {
                     this.formData = {
                         username: '',
                         password: ''
                     }
-                    this.$router.push('/login')
-
                     console.log(response)
-
+                    console.log(response.headers)
+                    this.$router.push('/')
                 })
                 .catch((error) => {
-                    alert("Account registration failed")
+                    alert("Login failed")
                     this.formData = {
                         username: '',
                         password: ''
@@ -57,7 +58,7 @@ export default {
 </script>
 
 <style>
-.create-account {
+.login {
     width: 100%;
     display: grid;
     justify-content: center;

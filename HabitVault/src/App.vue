@@ -3,13 +3,15 @@ import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
 </script>
 
+
 <template>
     <header>
         <div class="wrapper">
             <HelloWorld msg="HabitVault" />
 
             <nav>
-                <RouterLink to="/">Login</RouterLink>
+                <RouterLink to="/">Home</RouterLink>
+                <RouterLink to="/login">Login</RouterLink>
                 <RouterLink to="/register">Register</RouterLink>
             </nav>
         </div>
