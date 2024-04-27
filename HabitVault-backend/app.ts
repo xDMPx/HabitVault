@@ -23,23 +23,23 @@ app.use(cors({
 }))
 const port = 3000
 
-app.get('/users', restrict, async (req: Request, res: Response) => {
-    console.log(`${req.method} ${req.url}`)
+app.use((req: Request, _res: Response, next: NextFunction) => {
+    console.log(`${req.ip} ${req.method} ${req.url} => ${JSON.stringify(req.body)}`)
+    next()
+})
 
+app.get('/users', restrict, async (_req: Request, res: Response) => {
     const users = await prisma.user.findMany()
     res.json(users)
 })
 
-app.get('/authorized', restrict, async (req: Request, res: Response) => {
-    console.log(`${req.method} ${req.url}`)
-
+app.get('/authorized', restrict, async (_req: Request, res: Response) => {
     res.json()
 })
 
 interface RegisterBody {
     username: string | undefined,
     password: string | undefined
-
 }
 
 interface TypedRequest<T> extends Request {
@@ -48,8 +48,6 @@ interface TypedRequest<T> extends Request {
 
 //TODO: data validation, check if username already taken
 app.post('/register', async (req: TypedRequest<RegisterBody>, res: Response) => {
-    console.log(`${req.method} ${req.path} => ${JSON.stringify(req.body)}`)
-
     const username = req.body.username
     const password = req.body.password
     if (username !== undefined && password !== undefined) {
@@ -60,13 +58,10 @@ app.post('/register', async (req: TypedRequest<RegisterBody>, res: Response) => 
 
             }
         })
-        console.log(user)
         res.json(user)
-
     } else {
         res.status(400).json()
     }
-
 })
 
 declare module 'express-session' {
@@ -81,8 +76,6 @@ interface LoginBody {
 }
 
 app.post('/login', async (req: TypedRequest<LoginBody>, res: Response) => {
-    console.log(`${req.method} ${req.path} => ${JSON.stringify(req.body)}`)
-
     const username = req.body.username
     const password = req.body.password
     if (username !== undefined && password !== undefined) {
@@ -92,9 +85,7 @@ app.post('/login', async (req: TypedRequest<LoginBody>, res: Response) => {
             }
         })
         if (user?.password === password) {
-            console.log("loged in")
             req.session.regenerate(function () {
-                console.log(`loged in regenerat ${req.session.id}`)
                 req.session.userid = user.id
                 res.json()
             });
@@ -102,7 +93,6 @@ app.post('/login', async (req: TypedRequest<LoginBody>, res: Response) => {
         else {
             res.status(401).json()
         }
-
     } else {
         res.status(400).json()
     }
@@ -111,7 +101,7 @@ app.post('/login', async (req: TypedRequest<LoginBody>, res: Response) => {
 
 //TODO Handle error
 app.post('/signout', restrict, async (req: Request, res: Response) => {
-    req.session.destroy((err) => {
+    req.session.destroy((_err) => {
         res.json()
     })
 })
