@@ -93,7 +93,7 @@ app.post('/login', async (req: TypedRequest<LoginBody>, res: Response) => {
         })
         if (user?.password === password) {
             console.log("loged in")
-            req.session.regenerate(function() {
+            req.session.regenerate(function () {
                 console.log(`loged in regenerat ${req.session.id}`)
                 req.session.userid = user.id
                 res.json()
@@ -107,6 +107,13 @@ app.post('/login', async (req: TypedRequest<LoginBody>, res: Response) => {
         res.status(400).json()
     }
 
+})
+
+//TODO Handle error
+app.post('/signout', restrict, async (req: Request, res: Response) => {
+    req.session.destroy((err) => {
+        res.json()
+    })
 })
 
 function restrict(req: Request, res: Response, next: NextFunction) {

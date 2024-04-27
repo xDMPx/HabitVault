@@ -1,8 +1,25 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
-</script>
 
+import axios from 'axios'
+import { ref } from 'vue';
+
+const authorized = ref(false)
+axios.get('http://localhost:3000/authorized').then(() => {
+    authorized.value = true
+}).catch(() => { })
+
+function signOut() {
+    axios.get('http://localhost:3000/signout').then(() => useRouter().push('login'))
+    updateAuthState(false)
+}
+
+function updateAuthState(auth: boolean) {
+    authorized.value = auth
+}
+
+</script>
 
 <template>
     <header>
@@ -10,15 +27,22 @@ import HelloWorld from './components/HelloWorld.vue'
             <HelloWorld msg="HabitVault" />
 
             <nav>
-                <RouterLink to="/">Home</RouterLink>
-                <RouterLink to="/login">Login</RouterLink>
-                <RouterLink to="/register">Register</RouterLink>
+                <div v-if="authorized">
+                    <RouterLink to="/">Home</RouterLink>
+                    <RouterLink @click="signOut" to="/login">Sign Out</RouterLink>
+                </div>
+                <div v-else>
+                    <RouterLink to="/login">Log in</RouterLink>
+                    <RouterLink to="/register">Register</RouterLink>
+                </div>
             </nav>
+
+
         </div>
     </header>
 
     <div class="router">
-        <RouterView />
+        <RouterView @updateAuthState="updateAuthState" />
     </div>
 </template>
 

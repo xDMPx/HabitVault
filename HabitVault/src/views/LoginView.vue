@@ -23,6 +23,11 @@
 <script lang="ts">
 import axios from 'axios'
 export default {
+    emits: {
+        updateAuthState(_auth: boolean) {
+            return true
+        }
+    },
     data() {
         return {
             formData: {
@@ -33,6 +38,7 @@ export default {
     },
     methods: {
         handleLogin() {
+
             console.log(this.formData)
             axios.post('http://localhost:3000/login', this.formData)
                 .then((response) => {
@@ -42,6 +48,7 @@ export default {
                     }
                     console.log(response)
                     console.log(response.headers)
+                    this.$emit('updateAuthState', true)
                     this.$router.push('/')
                 })
                 .catch((error) => {
