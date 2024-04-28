@@ -24,65 +24,24 @@ function updateAuthState(auth: boolean) {
 <template>
     <header>
         <div class="wrapper">
-            <HelloWorld msg="HabitVault" />
+            <HelloWorld class="p-2" msg="HabitVault" />
 
-            <nav>
-                <div v-if="authorized">
-                    <RouterLink to="/">Home</RouterLink>
-                    <RouterLink @click="signOut" to="/login">Sign Out</RouterLink>
+            <nav class="p-2 px-4">
+                <div class="flex-row space-x-4 " v-if="authorized">
+                    <RouterLink class="p-2" active-class="text-primary" to="/">Home</RouterLink>
+                    <RouterLink class="p-1" active-class="text-primary" @click="signOut" to="/login">Sign Out
+                    </RouterLink>
                 </div>
-                <div v-else>
-                    <RouterLink to="/login">Log in</RouterLink>
-                    <RouterLink to="/register">Register</RouterLink>
+                <div class="flex-row divide-x divide-gray-700" v-else>
+                    <RouterLink class="px-2 :hover:" active-class="text-primary" to="/login">Log in</RouterLink>
+                    <RouterLink class="px-2" active-class="text-primary" to="/register">Register</RouterLink>
                 </div>
             </nav>
-
 
         </div>
     </header>
 
-    <div class="router">
+    <div class="grow content-center ">
         <RouterView @updateAuthState="updateAuthState" />
     </div>
 </template>
-
-<style scoped>
-header {
-    line-height: 1.5;
-    max-height: 100vh;
-}
-
-nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-}
-
-nav a.router-link-exact-active {
-    color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-    background-color: transparent;
-}
-
-nav a {
-    display: inline-block;
-    padding: 0 1rem;
-    border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-    border: 0;
-}
-
-.router {
-    padding-top: 1vh;
-    flex-grow: 1;
-    display: flex;
-    align-items: center;
-}
-</style>

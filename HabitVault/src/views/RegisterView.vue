@@ -1,19 +1,27 @@
 <template>
-    <div class="create-account">
-        <h1>Create Account</h1>
-        <form @submit.prevent="handleAccountCreation">
-            <div>
-                <label for="Username">Username:</label><br>
-                <input type="text" id="username" placeholder="Username" v-model="formData.username" required>
-            </div>
-            <div>
-                <label for="Password">Password:</label><br>
-                <input type="password" id="password" placeholder="Password" v-model="formData.password" required>
-            </div>
-            <div>
-                <button type="submit">Register</button>
-            </div>
-        </form>
+    <div class="hero-content grid mx-auto">
+        <h1 class="text-5xl font-bold">Create Account</h1>
+        <div class="card shrink-0 w-max-w-sm shadow-2xl bg-base-100">
+            <form @submit.prevent="handleAccountCreation" class="card-body">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Username</span>
+                    </label>
+                    <input type="username" placeholder="username" v-model="formData.username"
+                        class="input input-bordered" required />
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Password</span>
+                    </label>
+                    <input type="password" placeholder="password" v-model="formData.password"
+                        class="input input-bordered" required />
+                </div>
+                <div class="form-control mt-6">
+                    <button class="btn btn-primary">Register</button>
+                </div>
+            </form>
+        </div>
     </div>
 </template>
 
@@ -55,17 +63,3 @@ export default {
     }
 }
 </script>
-
-<style>
-.create-account {
-    width: 100%;
-    display: grid;
-    justify-content: center;
-
-    h1,
-    div {
-
-        padding-bottom: 2mm;
-    }
-}
-</style>

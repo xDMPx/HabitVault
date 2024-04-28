@@ -2,21 +2,29 @@
 </script>
 
 <template>
-    <div class="login">
-        <h1>Login</h1>
-        <form @submit.prevent="handleLogin">
-            <div>
-                <label for="Username">Username:</label><br>
-                <input type="text" id="username" placeholder="Username" v-model="formData.username" required>
-            </div>
-            <div>
-                <label for="Password">Password:</label><br>
-                <input type="password" id="password" placeholder="Password" v-model="formData.password" required>
-            </div>
-            <div>
-                <button type="submit">Login</button>
-            </div>
-        </form>
+    <div class="hero-content grid px-4 my-auto mx-auto">
+        <h1 class="text-5xl font-bold">Login</h1>
+        <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+            <form @submit.prevent="handleLogin" class="card-body">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Username</span>
+                    </label>
+                    <input type="username" placeholder="username" v-model="formData.username"
+                        class="input input-bordered" required />
+                </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Password</span>
+                    </label>
+                    <input type="password" placeholder="password" v-model="formData.password"
+                        class="input input-bordered" required />
+                </div>
+                <div class="form-control mt-6">
+                    <button class="btn btn-primary">Login</button>
+                </div>
+            </form>
+        </div>
     </div>
 </template>
 
@@ -63,17 +71,3 @@ export default {
     }
 }
 </script>
-
-<style>
-.login {
-    width: 100%;
-    display: grid;
-    justify-content: center;
-
-    h1,
-    div {
-
-        padding-bottom: 2mm;
-    }
-}
-</style>

@@ -16,17 +16,8 @@ axios.get('http://localhost:3000/users')
 </script>
 
 <template>
-    <div class="home">
+    <div class="grid justify-center px-4 my-auto mx-auto">
         <h1>Home page</h1>
         <p>{{ users }}</p>
     </div>
 </template>
-
-<style>
-.home {
-    width: 100%;
-    display: grid;
-    justify-content: center;
-    text-align: center;
-}
-</style>
