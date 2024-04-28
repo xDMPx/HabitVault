@@ -1,4 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express'
+import * as core from "express-serve-static-core";
 import session from 'express-session'
 import cors from 'cors'
 import { PrismaClient } from '@prisma/client'
@@ -42,8 +43,9 @@ interface RegisterBody {
     password: string | undefined
 }
 
-interface TypedRequest<T> extends Request {
-    body: T
+interface TypedRequest<B, P extends core.ParamsDictionary = core.ParamsDictionary> extends Request {
+    body: B
+    params: P
 }
 
 //TODO: data validation, check if username already taken
@@ -85,7 +87,7 @@ app.post('/login', async (req: TypedRequest<LoginBody>, res: Response) => {
             }
         })
         if (user?.password === password) {
-            req.session.regenerate(function () {
+            req.session.regenerate(function() {
                 req.session.userid = user.id
                 res.json()
             });
@@ -114,6 +116,71 @@ function restrict(req: Request, res: Response, next: NextFunction) {
     }
 }
 
+interface HabitBody {
+    name: string | undefined,
+    description: string | undefined
+}
+
+app.get('/user/habits', restrict, async (req: Request, res: Response) => {
+    const userid = req.session.userid
+    const user_habits = await prisma.user.findFirst({
+        where: { id: userid },
+        include: { habits: true }
+    })
+    res.json(user_habits?.habits)
+})
+
+//TODO: data validation, check if habit already exists 
+app.post('/user/habits', restrict, async (req: TypedRequest<HabitBody>, res: Response) => {
+    const userid = req.session.userid
+    const name = req.body.name
+    const description = req.body.description
+    if (name !== undefined && description !== undefined) {
+        const habit = await prisma.habit.create({
+            data: {
+                name: name,
+                description: description,
+                userId: userid
+            }
+        })
+        res.json(habit)
+    }
+    res.status(400).json()
+})
+
+//TODO: data validation, check if it's user's habit
+app.put('/user/habits/:id', restrict, async (req: TypedRequest<HabitBody, { id: string }>, res: Response) => {
+    const userid = req.session.userid
+    const habitid: number = +req.params.id
+    const name = req.body.name
+    const description = req.body.description
+    if (name !== undefined && description !== undefined && !isNaN(habitid)) {
+        const habit = await prisma.habit.update({
+            where: { id: habitid },
+            data: {
+                name: name,
+                description: description,
+                userId: userid
+            }
+        })
+        res.json(habit)
+    }
+    res.status(400).json()
+})
+
+//TODO: data validation, check if it's user's habit
+app.delete('/user/habits/:id', restrict, async (req: TypedRequest<HabitBody, { id: string }>, res: Response) => {
+    const habitid: number = +req.params.id
+    if (!isNaN(habitid)) {
+        const habit = await prisma.habit.delete({
+            where: { id: habitid },
+        })
+        res.json(habit)
+    }
+    res.status(400).json()
+})
+
 app.listen(port, () => {
     console.log(`HabitVault backend listening on port ${port}`)
 })
+
