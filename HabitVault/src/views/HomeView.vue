@@ -4,7 +4,7 @@ import { ref } from 'vue'
 const users = ref("")
 import axios from 'axios'
 
-axios.get('http://localhost:3000/users')
+axios.get('/users')
     .then((response) => {
         users.value = JSON.stringify(response.data)
         console.log(users.value)

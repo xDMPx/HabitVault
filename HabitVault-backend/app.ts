@@ -1,9 +1,11 @@
 import express, { NextFunction, Request, Response } from 'express'
-import * as core from "express-serve-static-core";
+import * as core from "express-serve-static-core"
 import session from 'express-session'
 import cors from 'cors'
 import { PrismaClient } from '@prisma/client'
+import dotenv from "dotenv"
 
+dotenv.config()
 const prisma = new PrismaClient()
 const app = express()
 app.use(express.json())
@@ -22,7 +24,7 @@ app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true,
 }))
-const port = 3000
+const port = process.env.PORT || 3000
 
 app.use((req: Request, _res: Response, next: NextFunction) => {
     console.log(`${req.ip} ${req.method} ${req.url} => ${JSON.stringify(req.body)}`)
@@ -87,7 +89,7 @@ app.post('/login', async (req: TypedRequest<LoginBody>, res: Response) => {
             }
         })
         if (user?.password === password) {
-            req.session.regenerate(function() {
+            req.session.regenerate(() => {
                 req.session.userid = user.id
                 res.json()
             });

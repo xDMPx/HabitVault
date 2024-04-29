@@ -48,7 +48,7 @@ export default {
         handleLogin() {
 
             console.log(this.formData)
-            axios.post('http://localhost:3000/login', this.formData)
+            axios.post('/login', this.formData)
                 .then((response) => {
                     this.formData = {
                         username: '',

@@ -40,7 +40,7 @@ export default {
     },
     methods: {
         handleAccountCreation() {
-            axios.post('http://localhost:3000/register', this.formData)
+            axios.post('/register', this.formData)
                 .then((response) => {
                     this.formData = {
                         username: '',

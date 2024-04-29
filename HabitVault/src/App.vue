@@ -6,19 +6,18 @@ import axios from 'axios'
 import { ref } from 'vue';
 
 const authorized = ref(false)
-axios.get('http://localhost:3000/authorized').then(() => {
+axios.get('/authorized').then(() => {
     authorized.value = true
 }).catch(() => { })
 
 function signOut() {
-    axios.get('http://localhost:3000/signout').then(() => useRouter().push('login'))
+    axios.get('/signout').then(() => useRouter().push('login'))
     updateAuthState(false)
 }
 
 function updateAuthState(auth: boolean) {
     authorized.value = auth
 }
-
 </script>
 
 <template>

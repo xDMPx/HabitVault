@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
 import axios from 'axios'
 
+axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL
+
 declare module 'vue-router' {
     interface RouteMeta {
         requiresAuth: boolean
@@ -37,7 +39,7 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
     if (to.meta.requiresAuth) {
-        const authorized = await axios.get('http://localhost:3000/authorized')
+        const authorized = await axios.get('/authorized')
             .then(() => true)
             .catch(() => false)
         if (!authorized) {
