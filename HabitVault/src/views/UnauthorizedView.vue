@@ -35,8 +35,6 @@ export default {
     methods: {
         updateAuthState() {
             this.$emit('updateAuthState', true)
-            this.$router.push('/')
-
         }
     }
 }

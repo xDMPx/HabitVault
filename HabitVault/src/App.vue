@@ -3,7 +3,7 @@ import UnauthorizedView from './views/UnauthorizedView.vue'
 import AuthorizedView from './views/AuthorizedView.vue'
 
 import axios from 'axios'
-import { ref } from 'vue';
+import { ref } from 'vue'
 
 const authorized = ref(false)
 axios.get('/authorized').then(() => {
