@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from '../components/HelloWorld.vue'
+import DrawerSideContent from '../components/DrawerSideContent.vue'
 </script>
 
 <template>
@@ -18,6 +19,7 @@ import HelloWorld from '../components/HelloWorld.vue'
                     </RouterLink>
                 </div>
                 <div class="divider" />
+                <DrawerSideContent />
             </div>
         </div>
 

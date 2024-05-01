@@ -20,6 +20,13 @@ const router = createRouter({
             components: { AuthorizedView: () => import('../views/HomeView.vue') }
         },
         {
+            path: '/habit/:id',
+            name: 'habit',
+            meta: { requiresAuth: true },
+            components: { AuthorizedView: () => import('../views/HabitView.vue') }
+
+        },
+        {
             path: '/login',
             name: 'login',
             meta: { requiresAuth: false },
