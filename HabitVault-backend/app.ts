@@ -59,7 +59,6 @@ app.post('/register', async (req: TypedRequest<RegisterBody>, res: Response) => 
             data: {
                 username: username,
                 password: password
-
             }
         })
         res.json(user)
@@ -137,13 +136,26 @@ app.post('/user/habits', restrict, async (req: TypedRequest<HabitBody>, res: Res
     const userid = req.session.userid
     const name = req.body.name
     const description = req.body.description
-    if (name !== undefined && description !== undefined) {
+    if (name !== undefined && description !== undefined && userid !== undefined) {
         const habit = await prisma.habit.create({
             data: {
                 name: name,
                 description: description,
                 userId: userid
             }
+        })
+        res.json(habit)
+    }
+    res.status(400).json()
+})
+
+//TODO: check if it's user's habit
+app.get('/user/habits/:id', restrict, async (req: TypedRequest<any, { id: string }>, res: Response) => {
+    const userid = req.session.userid
+    const habitid: number = +req.params.id
+    if (userid !== undefined && !isNaN(habitid)) {
+        const habit = await prisma.habit.findFirst({
+            where: { id: habitid },
         })
         res.json(habit)
     }
