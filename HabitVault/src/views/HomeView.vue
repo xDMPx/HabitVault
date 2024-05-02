@@ -1,20 +1,115 @@
 <script setup lang="ts">
-import { ref, type Ref } from 'vue'
+import { ref, type Ref, computed } from 'vue'
 import axios from 'axios'
 
 const habits: Ref<Habit[]> = ref([])
-fetchUserHabits()
+axios.get<Habit[] | undefined>('/user/habits')
+    .then((response) => {
+        if (response.data !== undefined) {
+            habits.value = response.data
+        }
+    })
+    .catch((error) => {
+        alert("Error")
+        console.error(error)
+    })
 
-function fetchUserHabits() {
-    axios.get<Habit[] | undefined>('/user/habits')
+const records: Ref<HabitRecord[]> = ref([])
+fetchRecords()
+
+function fetchRecords() {
+    axios.get<HabitRecord[] | undefined>('/user/records')
         .then((response) => {
-            if (response.data !== undefined)
-                habits.value = response.data
+            if (response.data !== undefined) {
+                records.value = response.data
+            }
         })
         .catch((error) => {
             alert("Error")
             console.error(error)
         })
+
+
+}
+
+const habitRecordRow = computed((): HabitRecordRow[] => {
+    return habits.value.map((habit) => {
+        const habit_records = records.value
+            .filter((record) => record.habitId === habit.id)
+
+        const checked = habitRecordsToChecked(habit.id, habit_records)
+
+        return {
+            habitid: habit.id,
+            name: habit.name,
+            checked: checked
+        }
+    })
+})
+
+function habitRecordsToChecked(habitid: number, habitRecord: HabitRecord[]): Checked[] {
+    const records = habitRecord.map((record) => {
+        return {
+            recordId: record.id,
+            dayOfWeek: dateToDayOfWeek(new Date(record.date))
+        }
+    })
+
+    const checked: Checked[] = tableHeadHeaders.map(() => {
+        return {
+            recordid: undefined,
+            checked: false
+        }
+    })
+
+    records.forEach((record) => {
+        checked[record.dayOfWeek] = {
+            recordid: record.recordId,
+            checked: true
+        }
+    })
+
+    return checked
+}
+
+const tableHeadHeaders = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+]
+
+function dateToDayOfWeek(date: Date): number {
+    // Monday start of the week
+    const dayOfWeek = (date.getDay() + 6) % 7
+    return dayOfWeek
+}
+
+function weekStartDate(): Date {
+    const today = todayDayStart()
+    // Monday start of the week
+    const dayOfWeek = (today.getDay() + 6) % 7
+    today.setDate(today.getDate() - (dayOfWeek))
+    return today
+}
+
+function weekEndDate(): Date {
+    const today = todayDayStart()
+    // Monday start of the week
+    const dayOfWeek = (today.getDay() + 6) % 7
+    today.setDate(today.getDate() + (6 - dayOfWeek))
+    return today
+}
+
+function todayDayStart(): Date {
+    const today = new Date()
+    today.setHours(0)
+    today.setMinutes(0)
+    today.setSeconds(0)
+    return today
 }
 
 interface Habit {
@@ -24,101 +119,79 @@ interface Habit {
     userId: number
 }
 
-const formData = ref({
-    name: "",
-    description: ""
-})
+interface HabitRecordRow {
+    habitid: number
+    name: string
+    checked: Checked[]
+}
 
-function handleAddHabit() {
-    axios.post('/user/habits', formData.value)
-        .then((response) => {
-            formData.value = {
-                name: '',
-                description: ''
-            }
+interface Checked {
+    recordid: number | undefined
+    checked: boolean
+}
 
-            console.log(response)
-            fetchUserHabits()
+interface HabitRecord {
+    id: number
+    date: string
+    habitId: number
+    userId: number
+}
 
-        })
-        .catch((error) => {
-            alert("Adding habit failed")
-            formData.value = {
-                name: '',
-                description: ''
-            }
-            console.error(error)
-        })
+function handleCheckBoxStateChange(habit_id: number, day_index: number, recordid: number | undefined) {
+    const today = new Date()
+    // Monday start of the week
+    const dayOfWeek = (today.getDay() + 6) % 7
+    const recordDate = new Date()
+    recordDate.setHours(0)
+    recordDate.setMinutes(0)
+    recordDate.setSeconds(0)
+    recordDate.setDate(recordDate.getDate() - (dayOfWeek - day_index))
 
-    const modal = document.getElementById("add_habit_modal") as HTMLDialogElement | null
-    modal?.close()
+    if (recordid === undefined) {
+        axios.post(`/user/habits/${habit_id}/records`, { date: recordDate })
+            .then((_response) => {
+                fetchRecords()
+            })
+            .catch((error) => {
+                alert("Error")
+                console.error(error)
+            })
+    } else {
+        axios.delete(`/user/habits/${habit_id}/records/${recordid}`)
+            .then((_response) => {
+                fetchRecords()
+            })
+            .catch((error) => {
+                alert("Error")
+                console.error(error)
+            })
+    }
 }
 </script>
 
 <template>
-    <div class="justify-center py-4 px-4 h-full">
-        <div class="join join-vertical">
-            <p v-for="habit in habits" class="join-item">
-                {{ habit.name }} : {{ habit.description }}</p>
-            <div class="py-4 mx-auto">
-                <button class="btn btn-secondary mr-auto" onclick="add_habit_modal.showModal()">Add habit</button>
-            </div>
-        </div>
+    <div class="overflow-x-auto">
+        <table class="table">
+            <!-- head -->
+            <thead>
+                <tr>
+                    <th></th>
+                    <th v-for="header in tableHeadHeaders">
+                        {{ header }}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(row, row_index) in habitRecordRow">
+                    <th>{{ row.name }}</th>
+                    <td v-for="(checked, day_index) in row.checked">
+                        <input type="checkbox" :checked="checked.checked"
+                            @click="handleCheckBoxStateChange(row.habitid, day_index, checked.recordid)"
+                            class="checkbox" />
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
     </div>
-
-    <dialog id="add_habit_modal" class="modal">
-        <div class="modal-box">
-            <h3 class="font-bold text-lg">Add habit</h3>
-            <form @submit.prevent="handleAddHabit">
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text">Name</span>
-                    </label>
-                    <input type="name" placeholder="name" class="input input-bordered" v-model="formData.name"
-                        required />
-                </div>
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text">Description</span>
-                    </label>
-                    <textarea placeholder="Description" class="textarea textarea-bordered textarea-lg w-full"
-                        v-model="formData.description" required></textarea>
-                </div>
-                <div class="form-control mt-6">
-                    <button class="btn btn-primary">Add habit</button>
-                </div>
-            </form>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-            <button>close</button>
-        </form>
-    </dialog>
-
-    <dialog id="add_habit_modal" class="modal">
-        <div class="modal-box">
-            <h3 class="font-bold text-lg">Add habit</h3>
-            <form @submit.prevent="handleAddHabit">
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text">Name</span>
-                    </label>
-                    <input type="name" placeholder="name" class="input input-bordered" v-model="formData.name"
-                        required />
-                </div>
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text">Description</span>
-                    </label>
-                    <textarea placeholder="Description" class="textarea textarea-bordered textarea-lg w-full"
-                        v-model="formData.description" required></textarea>
-                </div>
-                <div class="form-control mt-6">
-                    <button class="btn btn-primary">Add habit</button>
-                </div>
-            </form>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-            <button>close</button>
-        </form>
-    </dialog>
 </template>
