@@ -15,16 +15,27 @@ datasource db {
 }
 
 model User {
-    id       Int     @id @default(autoincrement())
+    id       Int           @id @default(autoincrement())
     username String
     password String
     habits   Habit[]
+    records  HabitRecord[]
 }
 
 model Habit {
-    id          Int    @id @default(autoincrement())
+    id          Int           @id @default(autoincrement())
     name        String
     description String
-    User        User?  @relation(fields: [userId], references: [id])
-    userId      Int?
+    User        User          @relation(fields: [userId], references: [id])
+    userId      Int
+    records     HabitRecord[]
+}
+
+model HabitRecord {
+    id      Int      @id @default(autoincrement())
+    date    DateTime
+    habitId Int
+    Habit   Habit    @relation(fields: [habitId], references: [id])
+    User    User     @relation(fields: [userId], references: [id])
+    userId  Int
 }
