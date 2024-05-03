@@ -23,6 +23,21 @@ function fetchHabit(habitid: string | string[]) {
             alert("Error")
             console.error(error)
         })
+    fetchHabitRecords(habitid)
+}
+
+const records: Ref<HabitRecord[]> = ref([])
+function fetchHabitRecords(habitid: string | string[]) {
+    axios.get<HabitRecord[] | undefined>(`/user/habits/${habitid}/records`)
+        .then((response) => {
+            if (response.data !== undefined) {
+                records.value = response.data
+            }
+        })
+        .catch((error) => {
+            alert("Error")
+            console.error(error)
+        })
 }
 
 interface Habit {
@@ -31,12 +46,29 @@ interface Habit {
     description: string
     userId: number
 }
+
+interface HabitRecord {
+    id: number
+    date: string
+    habitId: number
+    userId: number
+}
 </script>
 
 <template>
     <div>
-        {{ habit?.name }}
-        </br>
-        {{ habit?.description }}
+        <div class="hero">
+            <div class="hero-content flex-col mr-auto">
+                <div>
+                    <h1 class="text-5xl font-bold"> {{ habit?.name }} </h1>
+                    <p class="py-6"> {{ habit?.description }} </p>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <h2 class="text-3xl font-bold"> Records: </h2>
+    <ul class="p-4">
+        <li v-for="record in records"> {{ new Date(record.date).toDateString() }} </li>
+    </ul>
 </template>

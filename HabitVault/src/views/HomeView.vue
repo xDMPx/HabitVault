@@ -28,8 +28,6 @@ function fetchRecords() {
             alert("Error")
             console.error(error)
         })
-
-
 }
 
 const habitRecordRow = computed((): HabitRecordRow[] => {
