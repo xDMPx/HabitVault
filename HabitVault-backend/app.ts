@@ -26,9 +26,9 @@ app.use(cors({
 }))
 app.use(log)
 
-app.use('/', require('./routes/api'))
-app.use('/user', require('./routes/api/user'))
-app.use('/user/habits', require('./routes/api/user/habits'))
+app.use('/api/', require('./routes/api'))
+app.use('/api/user', require('./routes/api/user'))
+app.use('/api/user/habits', require('./routes/api/user/habits'))
 
 const port = process.env.PORT || 3000
 app.listen(port, () => {
