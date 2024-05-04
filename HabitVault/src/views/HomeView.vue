@@ -21,7 +21,10 @@ function fetchRecords() {
     axios.get<HabitRecord[] | undefined>('/user/records')
         .then((response) => {
             if (response.data !== undefined) {
-                records.value = response.data
+                records.value = response.data.filter((record) => {
+                    const date = new Date(record.date)
+                    return date >= weekStartDate() && date <= weekEndDate()
+                })
             }
         })
         .catch((error) => {
@@ -35,7 +38,7 @@ const habitRecordRow = computed((): HabitRecordRow[] => {
         const habit_records = records.value
             .filter((record) => record.habitId === habit.id)
 
-        const checked = habitRecordsToChecked(habit.id, habit_records)
+        const checked = habitRecordsToChecked(habit_records)
 
         return {
             habitid: habit.id,
@@ -45,7 +48,7 @@ const habitRecordRow = computed((): HabitRecordRow[] => {
     })
 })
 
-function habitRecordsToChecked(habitid: number, habitRecord: HabitRecord[]): Checked[] {
+function habitRecordsToChecked(habitRecord: HabitRecord[]): Checked[] {
     const records = habitRecord.map((record) => {
         return {
             recordId: record.id,
@@ -107,6 +110,7 @@ function todayDayStart(): Date {
     today.setHours(0)
     today.setMinutes(0)
     today.setSeconds(0)
+    today.setMilliseconds(0)
     return today
 }
 
@@ -136,13 +140,10 @@ interface HabitRecord {
 }
 
 function handleCheckBoxStateChange(habit_id: number, day_index: number, recordid: number | undefined) {
-    const today = new Date()
+    const today = todayDayStart()
     // Monday start of the week
     const dayOfWeek = (today.getDay() + 6) % 7
-    const recordDate = new Date()
-    recordDate.setHours(0)
-    recordDate.setMinutes(0)
-    recordDate.setSeconds(0)
+    const recordDate = todayDayStart()
     recordDate.setDate(recordDate.getDate() - (dayOfWeek - day_index))
 
     if (recordid === undefined) {
@@ -170,7 +171,6 @@ function handleCheckBoxStateChange(habit_id: number, day_index: number, recordid
 <template>
     <div class="overflow-x-auto">
         <table class="table">
-            <!-- head -->
             <thead>
                 <tr>
                     <th></th>
@@ -180,7 +180,7 @@ function handleCheckBoxStateChange(habit_id: number, day_index: number, recordid
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(row, row_index) in habitRecordRow">
+                <tr v-for="row in habitRecordRow">
                     <th>{{ row.name }}</th>
                     <td v-for="(checked, day_index) in row.checked">
                         <input type="checkbox" :checked="checked.checked"
@@ -188,7 +188,6 @@ function handleCheckBoxStateChange(habit_id: number, day_index: number, recordid
                             class="checkbox" />
                     </td>
                 </tr>
-
             </tbody>
         </table>
     </div>
