@@ -2,6 +2,17 @@
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from '../components/HelloWorld.vue'
 import DrawerSideContent from '../components/DrawerSideContent.vue'
+import axios from 'axios'
+
+const emit = defineEmits<{
+    updateAuthState: [auth: boolean]
+}>()
+
+function signOut() {
+    axios.post('/signout').then(() => {
+        emit('updateAuthState', false)
+    })
+}
 </script>
 
 <template>
@@ -34,29 +45,3 @@ import DrawerSideContent from '../components/DrawerSideContent.vue'
     </div>
 
 </template>
-
-<script lang="ts">
-import axios from 'axios'
-export default {
-    emits: {
-        updateAuthState(_auth: boolean) {
-            return true
-        }
-    },
-    data() {
-        return {
-            formData: {
-                username: '',
-                password: ''
-            }
-        }
-    },
-    methods: {
-        signOut() {
-            axios.post('/signout').then(() => {
-                this.$emit('updateAuthState', false)
-            })
-        }
-    }
-}
-</script>
