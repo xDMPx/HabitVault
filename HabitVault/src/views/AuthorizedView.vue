@@ -9,7 +9,7 @@ import DrawerSideContent from '../components/DrawerSideContent.vue'
     <div class="drawer h-dvh lg:drawer-open">
         <input id="side-menu-drawer" type="checkbox" class="drawer-toggle" />
 
-        <div class="drawer-side">
+        <div class="drawer-side z-40">
             <label for="side-menu-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
             <div class="p-4 w-80 min-h-full bg-base-200">
                 <HelloWorld class="p-2" msg="HabitVault" />

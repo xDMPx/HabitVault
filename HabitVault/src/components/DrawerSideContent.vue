@@ -56,7 +56,7 @@ function handleAddHabit() {
 </script>
 
 <template>
-    <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
+    <ul class="menu p-4 min-h-full bg-base-200 text-base-content">
         <RouterLink v-for="habit in habits" class="p-2 join-item" active-class="text-primary"
             :to="{ path: `/habit/${habit.id}` }"> {{
                 habit.name
