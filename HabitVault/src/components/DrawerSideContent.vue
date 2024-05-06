@@ -1,21 +1,23 @@
 <script setup lang="ts">
-import { ref, type Ref } from 'vue'
+import { ref, type Ref, watch } from 'vue'
 import axios from 'axios'
 
-const habits: Ref<Habit[]> = ref([])
-fetchUserHabits()
+const emit = defineEmits<{
+    updateHabits: []
+}>()
 
-function fetchUserHabits() {
-    axios.get<Habit[] | undefined>('/user/habits')
-        .then((response) => {
-            if (response.data !== undefined)
-                habits.value = response.data
-        })
-        .catch((error) => {
-            alert("Error")
-            console.error(error)
-        })
-}
+const props = defineProps<{
+    habits?: Habit[]
+}>()
+const habits: Ref<Habit[]> = ref([])
+
+if (props.habits !== undefined)
+    habits.value = props.habits
+
+watch(() => props.habits, (newHabits, _oldHabits) => {
+    if (newHabits !== undefined)
+        habits.value = newHabits
+})
 
 interface Habit {
     id: number
@@ -38,7 +40,7 @@ function handleAddHabit() {
             }
 
             console.log(response)
-            fetchUserHabits()
+            emit('updateHabits')
 
         })
         .catch((error) => {

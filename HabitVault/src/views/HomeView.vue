@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import { ref, type Ref, computed } from 'vue'
+import { ref, type Ref, computed, watch } from 'vue'
 import axios from 'axios'
 
+const props = defineProps<{
+    habits?: Habit[]
+}>()
 const habits: Ref<Habit[]> = ref([])
-axios.get<Habit[] | undefined>('/user/habits')
-    .then((response) => {
-        if (response.data !== undefined) {
-            habits.value = response.data
-        }
-    })
-    .catch((error) => {
-        alert("Error")
-        console.error(error)
-    })
+
+if (props.habits !== undefined)
+    habits.value = props.habits
+
+watch(() => props.habits, (newHabits, _oldHabits) => {
+    if (newHabits !== undefined)
+        habits.value = newHabits
+})
 
 const records: Ref<HabitRecord[]> = ref([])
 fetchRecords()
@@ -181,11 +182,7 @@ function handleCheckBoxStateChange(habit_id: number, day_index: number, recordid
             </thead>
             <tbody>
                 <tr v-for="row in habitRecordRow">
-                    <th>
-                        <RouterLink active-class="text-primary" :to="{ path: `/habit/${row.habitid}` }">
-                            {{ row.name }}
-                        </RouterLink>
-                    </th>
+                    <th>{{ row.name }}</th>
                     <td v-for="(checked, day_index) in row.checked">
                         <input type="checkbox" :checked="checked.checked"
                             @click="handleCheckBoxStateChange(row.habitid, day_index, checked.recordid)"

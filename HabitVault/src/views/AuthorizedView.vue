@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref, type Ref } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from '../components/HelloWorld.vue'
 import DrawerSideContent from '../components/DrawerSideContent.vue'
@@ -13,12 +14,35 @@ function signOut() {
         emit('updateAuthState', false)
     })
 }
+
+const habits: Ref<Habit[]> = ref([])
+fetchHabits()
+function fetchHabits() {
+    axios.get<Habit[] | undefined>('/user/habits')
+        .then((response) => {
+            if (response.data !== undefined) {
+                habits.value = response.data
+            }
+        })
+        .catch((error) => {
+            alert("Error")
+            console.error(error)
+        })
+}
+
+interface Habit {
+    id: number
+    name: string
+    description: string
+    userId: number
+}
+
 </script>
 
 <template>
 
     <div class="drawer h-dvh lg:drawer-open">
-        <input id="side-menu-drawer" type="checkbox" class="drawer-toggle" />
+        <input id="side-menu-drawer" type="checkbox" class="drawer-toggle" @click="fetchHabits" />
 
         <div class="drawer-side z-40">
             <label for="side-menu-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
@@ -30,7 +54,7 @@ function signOut() {
                     </RouterLink>
                 </div>
                 <div class="divider" />
-                <DrawerSideContent />
+                <DrawerSideContent :habits="habits" @updateHabits="fetchHabits" />
             </div>
         </div>
 
@@ -38,7 +62,7 @@ function signOut() {
             <!-- Use icon -->
             <label for="side-menu-drawer" class="btn btn-ghost drawer-button lg:hidden">Open drawer</label>
             <div class="grow">
-                <RouterView name="AuthorizedView" />
+                <RouterView :habits="habits" name="AuthorizedView" />
             </div>
         </div>
 
