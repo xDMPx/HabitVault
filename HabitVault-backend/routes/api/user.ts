@@ -1,18 +1,42 @@
-import { Router, Request, Response } from 'express'
+import { Router, Response } from 'express'
 import { PrismaClient } from '@prisma/client'
 
 import { restrict } from '../../middlewares'
+import { TypedRequest } from '../../interfaces'
 
 const router = Router()
 const prisma = new PrismaClient()
 
-router.get('/records', restrict, async (req: Request, res: Response) => {
+router.get('/records', restrict, async (req: TypedRequest<any, any, { from: string, to: string }>, res: Response) => {
+
+    const from = new Date(req.query.from)
+    const to = new Date(req.query.to)
+
     const userid = req.session.userid
-    const user = await prisma.user.findFirst({
-        where: { id: userid },
-        include: { records: true }
-    })
-    res.json(user?.records)
+    if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {
+        const user = await prisma.user.findFirst({
+            where: { id: userid },
+            include: {
+                records: {
+                    where: {
+                        date: {
+                            gte: from,
+                            lte: to,
+                        }
+                    }
+                }
+            }
+        })
+
+        res.json(user?.records)
+    } else {
+        const user = await prisma.user.findFirst({
+            where: { id: userid },
+            include: { records: true }
+        })
+
+        res.json(user?.records)
+    }
 })
 
 module.exports = router
