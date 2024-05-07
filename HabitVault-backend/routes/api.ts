@@ -1,26 +1,11 @@
 import { Router, Request, Response } from 'express'
-import * as core from "express-serve-static-core"
 import { PrismaClient } from '@prisma/client'
 
 import { restrict } from '../middlewares'
+import { TypedRequest, RegisterBody, LoginBody } from '../interfaces'
 
 const router = Router()
 const prisma = new PrismaClient()
-
-interface TypedRequest<B, P extends core.ParamsDictionary = core.ParamsDictionary> extends Request {
-    body: B
-    params: P
-}
-
-interface RegisterBody {
-    username: string | undefined,
-    password: string | undefined
-}
-
-interface LoginBody {
-    username: string | undefined,
-    password: string | undefined
-}
 
 router.get('/users', restrict, async (_req: Request, res: Response) => {
     const users = await prisma.user.findMany()

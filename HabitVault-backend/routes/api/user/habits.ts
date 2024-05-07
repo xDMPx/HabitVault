@@ -1,22 +1,11 @@
 import { Router, Request, Response } from 'express'
-import * as core from "express-serve-static-core"
 import { PrismaClient } from '@prisma/client'
 
 import { restrict } from '../../../middlewares'
+import { TypedRequest, HabitBody, HabitRecordBody } from '../../../interfaces'
 
 const router = Router()
 const prisma = new PrismaClient()
-
-
-interface HabitBody {
-    name: string | undefined,
-    description: string | undefined
-}
-
-interface TypedRequest<B, P extends core.ParamsDictionary = core.ParamsDictionary> extends Request {
-    body: B
-    params: P
-}
 
 router.get('/', restrict, async (req: Request, res: Response) => {
     const userid = req.session.userid
@@ -94,11 +83,6 @@ router.delete('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string
         res.status(400).json()
     }
 })
-
-interface HabitRecordBody {
-    date: string | undefined,
-}
-
 
 router.get('/:id/records', restrict, async (req: TypedRequest<any, { id: string }>, res: Response) => {
     const userid = req.session.userid
