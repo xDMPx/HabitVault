@@ -222,7 +222,10 @@ function goToNextWeek() {
                     <td v-for="(checked, day_index) in row.checked">
                         <input type="checkbox" :checked="checked.checked"
                             @click="handleCheckBoxStateChange(row.habitid, day_index, checked.recordid)"
-                            class="checkbox" />
+                            class="checkbox" v-if="weekOffset == 0" />
+                        <input type="checkbox" :checked="checked.checked"
+                            @click="handleCheckBoxStateChange(row.habitid, day_index, checked.recordid)"
+                            class="checkbox" v-else disabled />
                     </td>
                 </tr>
             </tbody>
