@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { ref, type Ref, computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
+
+const route = useRoute()
+const router = useRouter()
 
 const props = defineProps<{
     habits?: Habit[]
@@ -15,17 +19,31 @@ watch(() => props.habits, (newHabits, _oldHabits) => {
         habits.value = newHabits
 })
 
+let weekOffset: number = getWeekOffset()
+const weekStart = ref(weekStartDate().toDateString())
+const weekEnd = ref(weekEndDate().toDateString())
+watch(() => getWeekOffset(), (newOffset, _oldOffset) => {
+    weekOffset = newOffset
+    weekStart.value = weekStartDate().toDateString()
+    weekEnd.value = weekEndDate().toDateString()
+    fetchRecords()
+})
+
+
+weekStartDate().toDateString()
+
+function getWeekOffset(): number {
+    return +(route.query.week?.toString() ?? '')
+}
+
 const records: Ref<HabitRecord[]> = ref([])
 fetchRecords()
 
 function fetchRecords() {
-    axios.get<HabitRecord[] | undefined>('/user/records')
+    axios.get<HabitRecord[] | undefined>('/user/records', { params: { from: weekStartDate(), to: weekEndDate() } })
         .then((response) => {
             if (response.data !== undefined) {
-                records.value = response.data.filter((record) => {
-                    const date = new Date(record.date)
-                    return date >= weekStartDate() && date <= weekEndDate()
-                })
+                records.value = response.data
             }
         })
         .catch((error) => {
@@ -112,6 +130,9 @@ function todayDayStart(): Date {
     today.setMinutes(0)
     today.setSeconds(0)
     today.setMilliseconds(0)
+    if (!isNaN(weekOffset) && weekOffset < 0)
+        today.setDate(today.getDate() + (7 * weekOffset))
+
     return today
 }
 
@@ -167,10 +188,25 @@ function handleCheckBoxStateChange(habit_id: number, day_index: number, recordid
             })
     }
 }
+
+function goToPreviosuWeek() {
+    router.push({ name: 'home', query: { week: weekOffset - 1 } })
+}
+function goToNextWeek() {
+    router.push({ name: 'home', query: { week: weekOffset + 1 <= 0 ? weekOffset + 1 : 0 } })
+}
 </script>
 
 <template>
     <div class="overflow-x-auto">
+        <div class="join min-w-full justify-center">
+            <button class="p-4 join-item text-xl" @click="goToPreviosuWeek">
+                &lt </button>
+            <h2 class="p-4 join-item text-xl"> {{ weekStart }} - {{ weekEnd }}
+            </h2>
+            <button class="p-4 join-item text-xl" @click="goToNextWeek">
+                &gt </button>
+        </div>
         <table class="table">
             <thead>
                 <tr>
