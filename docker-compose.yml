@@ -10,3 +10,9 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: admin 
       MYSQL_DATABASE: mydb
+  redis-session-store:
+    image: redis:7.2.4
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --save 60 1 --loglevel warning

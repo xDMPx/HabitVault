@@ -1,5 +1,7 @@
 import express from 'express'
 import session from 'express-session'
+import RedisStore from "connect-redis"
+import Redis from "ioredis"
 import cors from 'cors'
 import dotenv from "dotenv"
 
@@ -7,11 +9,17 @@ import { log } from './middlewares'
 
 dotenv.config()
 
+const redis = new Redis()
+const redisStore = new RedisStore({
+    client: redis,
+})
+
 const app = express()
 app.use(express.json())
 app.use(session({
-    resave: false, // don't save session if unmodified
-    saveUninitialized: false, // don't create session until something stored
+    store: redisStore,
+    resave: false, // required: force lightweight session keep alive (touch)
+    saveUninitialized: false, // recommended: only save session when data exists
     secret: 'testSecret',
     name: "session",
     cookie: {
@@ -20,6 +28,7 @@ app.use(session({
         sameSite: 'lax'
     }
 }))
+
 app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true,
