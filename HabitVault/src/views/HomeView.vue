@@ -22,15 +22,15 @@ watch(() => props.habits, (newHabits, _oldHabits) => {
 let weekOffset: number = getWeekOffset()
 const weekStart = ref(weekStartDate().toDateString())
 const weekEnd = ref(weekEndDate().toDateString())
+const todayDayIndex = ref(dateToDayOfWeek(todayDayStart()))
 watch(() => getWeekOffset(), (newOffset, _oldOffset) => {
     weekOffset = newOffset
     weekStart.value = weekStartDate().toDateString()
     weekEnd.value = weekEndDate().toDateString()
+    todayDayIndex.value = dateToDayOfWeek(todayDayStart())
     fetchRecords()
 })
 
-
-weekStartDate().toDateString()
 
 function getWeekOffset(): number {
     return +(route.query.week?.toString() ?? '')
@@ -192,6 +192,7 @@ function handleCheckBoxStateChange(habit_id: number, day_index: number, recordid
 function goToPreviosuWeek() {
     router.push({ name: 'home', query: { week: weekOffset - 1 } })
 }
+
 function goToNextWeek() {
     router.push({ name: 'home', query: { week: weekOffset + 1 <= 0 ? weekOffset + 1 : 0 } })
 }
@@ -222,7 +223,7 @@ function goToNextWeek() {
                     <td v-for="(checked, day_index) in row.checked">
                         <input type="checkbox" :checked="checked.checked"
                             @click="handleCheckBoxStateChange(row.habitid, day_index, checked.recordid)"
-                            class="checkbox" v-if="weekOffset == 0" />
+                            class="checkbox" v-if="weekOffset == 0 && day_index <= todayDayIndex" />
                         <input type="checkbox" :checked="checked.checked"
                             @click="handleCheckBoxStateChange(row.habitid, day_index, checked.recordid)"
                             class="checkbox" v-else disabled />
