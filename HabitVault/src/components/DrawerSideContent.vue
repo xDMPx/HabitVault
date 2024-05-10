@@ -63,7 +63,13 @@ function handleAddHabit() {
             :to="{ path: `/habit/${habit.id}` }"> {{
                 habit.name
             }} </RouterLink>
-        <button class="btn btn-secondary mr-auto" onclick="add_habit_modal.showModal()">Add habit</button>
+        <div class="flex p-4 justify-center">
+            <button class="btn" onclick="add_habit_modal.showModal()">
+                <span class="material-symbols-outlined">
+                    add
+                </span>
+            </button>
+        </div>
     </ul>
 
     <dialog id="add_habit_modal" class="modal">

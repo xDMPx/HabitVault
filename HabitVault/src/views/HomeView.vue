@@ -201,12 +201,18 @@ function goToNextWeek() {
 <template>
     <div class="overflow-x-auto">
         <div class="join min-w-full justify-center">
-            <button class="p-4 join-item text-xl" @click="goToPreviosuWeek">
-                &lt </button>
-            <h2 class="p-4 join-item text-xl"> {{ weekStart }} - {{ weekEnd }}
+            <button class="flex p-4 join-item text-xl items-center" @click="goToPreviosuWeek">
+                <span class="material-symbols-outlined">
+                    chevron_left
+                </span>
+            </button>
+            <h2 class="flex py-4 join-item text-xl items-center"> {{ weekStart }} - {{ weekEnd }}
             </h2>
-            <button class="p-4 join-item text-xl" @click="goToNextWeek">
-                &gt </button>
+            <button class="flex p-4 join-item text-xl items-center" @click="goToNextWeek">
+                <span class="material-symbols-outlined">
+                    chevron_right
+                </span>
+            </button>
         </div>
         <table class="table">
             <thead>

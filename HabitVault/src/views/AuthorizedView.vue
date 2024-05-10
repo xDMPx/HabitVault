@@ -59,8 +59,11 @@ interface Habit {
         </div>
 
         <div class="drawer-content p-4 flex flex-col">
-            <!-- Use icon -->
-            <label for="side-menu-drawer" class="btn btn-ghost drawer-button lg:hidden">Open drawer</label>
+            <label for="side-menu-drawer" class="btn btn-ghost drawer-button lg:hidden justify-start">
+                <span class="material-symbols-outlined">
+                    menu
+                </span>
+            </label>
             <div class="grow">
                 <RouterView :habits="habits" name="AuthorizedView" />
             </div>
