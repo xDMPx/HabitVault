@@ -219,7 +219,11 @@ function goToNextWeek() {
             </thead>
             <tbody>
                 <tr v-for="row in habitRecordRow">
-                    <th>{{ row.name }}</th>
+                    <th>
+                        <RouterLink active-class="text-primary" :to="{ path: `/habit/${row.habitid}` }">
+                            {{ row.name }}
+                        </RouterLink>
+                    </th>
                     <td v-for="(checked, day_index) in row.checked">
                         <input type="checkbox" :checked="checked.checked"
                             @click="handleCheckBoxStateChange(row.habitid, day_index, checked.recordid)"
