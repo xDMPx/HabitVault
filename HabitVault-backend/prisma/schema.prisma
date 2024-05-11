@@ -26,7 +26,7 @@ model Habit {
     id          Int           @id @default(autoincrement())
     name        String
     description String
-    User        User          @relation(fields: [userId], references: [id])
+    User        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId      Int
     records     HabitRecord[]
 }
@@ -35,7 +35,7 @@ model HabitRecord {
     id      Int      @id @default(autoincrement())
     date    DateTime
     habitId Int
-    Habit   Habit    @relation(fields: [habitId], references: [id])
-    User    User     @relation(fields: [userId], references: [id])
+    Habit   Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+    User    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId  Int
 }
