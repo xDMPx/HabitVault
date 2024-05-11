@@ -65,7 +65,7 @@ interface Habit {
                 </span>
             </label>
             <div class="grow">
-                <RouterView :habits="habits" name="AuthorizedView" />
+                <RouterView :habits="habits" name="AuthorizedView" @updateHabits="fetchHabits" />
             </div>
         </div>
 

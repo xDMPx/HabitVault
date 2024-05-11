@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { watch, ref, type Ref } from 'vue'
 import axios from 'axios'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+
+const emit = defineEmits<{
+    updateHabits: []
+}>()
 
 const habit: Ref<Habit | undefined> = ref()
 
 const route = useRoute()
+const router = useRouter()
 const habitid = route.params.id
 watch(() => route.params.id, (newId, _oldId) => {
     const habitid = newId
@@ -40,6 +45,18 @@ function fetchHabitRecords(habitid: string | string[]) {
         })
 }
 
+function deleteHabit() {
+    axios.delete(`/user/habits/${habitid}`)
+        .then((_response) => {
+            emit('updateHabits')
+            router.replace('/')
+        })
+        .catch((error) => {
+            alert("Error")
+            console.error(error)
+        })
+}
+
 interface Habit {
     id: number
     name: string
@@ -57,11 +74,29 @@ interface HabitRecord {
 
 <template>
     <div>
-        <div class="hero">
-            <div class="hero-content flex-col mr-auto">
-                <div>
-                    <h1 class="text-5xl font-bold"> {{ habit?.name }} </h1>
-                    <p class="py-6"> {{ habit?.description }} </p>
+        <div class="flex">
+            <div class="hero">
+                <div class="hero-content flex-col mr-auto">
+                    <div>
+                        <h1 class="text-5xl font-bold"> {{ habit?.name }} </h1>
+                        <p class="py-6"> {{ habit?.description }} </p>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="dropdown dropdown-end">
+                    <div tabindex="0" role="button" class="btn btn-ghost rounded-btn">
+                        <span class="material-symbols-outlined">
+                            more_vert
+                        </span>
+                    </div>
+                    <ul tabindex="0" class="dropdown-content z-40 menu p-2 shadow rounded-box">
+                        <li>
+                            <span class="material-symbols-outlined" @click="deleteHabit">
+                                delete_forever
+                            </span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
