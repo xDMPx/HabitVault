@@ -122,7 +122,7 @@ const form = computed(() => {
                             </span>
                         </li>
                         <li>
-                            <span class="material-symbols-outlined" @click="deleteHabit">
+                            <span class="material-symbols-outlined" onclick="delete_habit_modal.showModal()">
                                 delete_forever
                             </span>
                         </li>
@@ -141,6 +141,28 @@ const form = computed(() => {
         <div class="modal-box">
             <h3 class="font-bold text-lg">Edit habit</h3>
             <HabitForm @form-submitted="handleEditHabit" :habit="form" />
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <dialog id="delete_habit_modal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg text-center">
+                Are you sure you want to delete this habit? <br>
+                This action cannot be undone.
+            </h3>
+            <form @submit.prevent="deleteHabit">
+                <div class="flex justify-center p-4 gap-4">
+                    <div class="form-control">
+                        <button class="btn btn-primary">Yes</button>
+                    </div>
+                    <form method="dialog">
+                        <button class="btn btn-neutral">No</button>
+                    </form>
+                </div>
+            </form>
         </div>
         <form method="dialog" class="modal-backdrop">
             <button>close</button>
