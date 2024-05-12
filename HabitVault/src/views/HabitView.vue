@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { watch, ref, type Ref } from 'vue'
+import { watch, ref, type Ref, computed } from 'vue'
 import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
+
+import HabitForm from '@/components/HabitForm.vue';
 
 const emit = defineEmits<{
     updateHabits: []
@@ -57,6 +59,22 @@ function deleteHabit() {
         })
 }
 
+function handleEditHabit(name: string, description: string) {
+    axios.put(`/user/habits/${habitid}`, { name: name, description: description })
+        .then((response) => {
+            console.log(response)
+            fetchHabit(habitid)
+            emit('updateHabits')
+        })
+        .catch((error) => {
+            alert("Editing habit failed")
+            console.error(error)
+        })
+
+    const modal = document.getElementById("edit_habit_modal") as HTMLDialogElement | null
+    modal?.close()
+}
+
 interface Habit {
     id: number
     name: string
@@ -70,6 +88,13 @@ interface HabitRecord {
     habitId: number
     userId: number
 }
+
+const form = computed(() => {
+    return {
+        name: habit.value?.name ?? '',
+        description: habit.value?.description ?? ''
+    }
+})
 </script>
 
 <template>
@@ -92,6 +117,11 @@ interface HabitRecord {
                     </div>
                     <ul tabindex="0" class="dropdown-content z-40 menu p-2 shadow rounded-box">
                         <li>
+                            <span class="material-symbols-outlined" onclick="edit_habit_modal.showModal()">
+                                edit_note
+                            </span>
+                        </li>
+                        <li>
                             <span class="material-symbols-outlined" @click="deleteHabit">
                                 delete_forever
                             </span>
@@ -106,4 +136,15 @@ interface HabitRecord {
     <ul class="p-4">
         <li v-for="record in records"> {{ new Date(record.date).toDateString() }} </li>
     </ul>
+
+    <dialog id="edit_habit_modal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg">Edit habit</h3>
+            <HabitForm @form-submitted="handleEditHabit" :habit="form" />
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
 </template>

@@ -2,6 +2,8 @@
 import { ref, type Ref, watch } from 'vue'
 import axios from 'axios'
 
+import HabitForm from './HabitForm.vue';
+
 const emit = defineEmits<{
     updateHabits: []
 }>()
@@ -26,29 +28,15 @@ interface Habit {
     userId: number
 }
 
-const formData = ref({
-    name: "",
-    description: ""
-})
-
-function handleAddHabit() {
-    axios.post('/user/habits', formData.value)
+function handleAddHabit(name: string, description: string) {
+    axios.post('/user/habits', { name: name, description: description })
         .then((response) => {
-            formData.value = {
-                name: '',
-                description: ''
-            }
-
             console.log(response)
             emit('updateHabits')
 
         })
         .catch((error) => {
             alert("Adding habit failed")
-            formData.value = {
-                name: '',
-                description: ''
-            }
             console.error(error)
         })
 
@@ -75,25 +63,7 @@ function handleAddHabit() {
     <dialog id="add_habit_modal" class="modal">
         <div class="modal-box">
             <h3 class="font-bold text-lg">Add habit</h3>
-            <form @submit.prevent="handleAddHabit">
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text">Name</span>
-                    </label>
-                    <input type="name" placeholder="name" class="input input-bordered" v-model="formData.name"
-                        required />
-                </div>
-                <div class="form-control">
-                    <label class="label">
-                        <span class="label-text">Description</span>
-                    </label>
-                    <textarea placeholder="Description" class="textarea textarea-bordered textarea-lg w-full"
-                        v-model="formData.description" required></textarea>
-                </div>
-                <div class="form-control mt-6">
-                    <button class="btn btn-primary">Add habit</button>
-                </div>
-            </form>
+            <HabitForm @form-submitted="handleAddHabit" />
         </div>
         <form method="dialog" class="modal-backdrop">
             <button>close</button>
