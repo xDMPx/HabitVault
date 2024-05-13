@@ -23,7 +23,7 @@ app.use(session({
     secret: 'testSecret',
     name: "session",
     cookie: {
-        maxAge: 600000,
+        maxAge: 31536000000,
         secure: false,
         sameSite: 'lax'
     }
