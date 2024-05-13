@@ -60,7 +60,7 @@ function handleAddHabit(name: string, description: string) {
         </div>
     </ul>
 
-    <dialog id="add_habit_modal" class="modal">
+    <dialog id="add_habit_modal" class="modal transition-none">
         <div class="modal-box">
             <h3 class="font-bold text-lg">Add habit</h3>
             <HabitForm @form-submitted="handleAddHabit" />
