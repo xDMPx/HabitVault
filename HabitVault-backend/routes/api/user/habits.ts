@@ -84,6 +84,67 @@ router.delete('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string
     }
 })
 
+router.get('/:id/streak', restrict, async (req: TypedRequest<any, { id: string }>, res: Response) => {
+    const userid = req.session.userid
+    const habitid: number = +req.params.id
+    const dates = await prisma.habitRecord.findMany({
+        where: { habitId: habitid, userId: userid },
+        select: { date: true },
+        orderBy: { date: 'desc' }
+    })
+    const d = dates.map(d => d.date)
+    res.json({ streak: calculateStreak(d), max_streak: calculateMaxStreak(d) })
+})
+
+function calculateStreak(dates: Date[]): number {
+    console.log(dates)
+    const dayInMilliseconds = 24 * 60 * 60 * 1000
+    let streak = 1
+    if (dates.length == 0) {
+        streak = 0
+    }
+
+    for (let i = 1; i < dates.length; i++) {
+        const currentDate = dates[i - 1]
+        const previousDate = dates[i]
+
+        if (currentDate.getTime() === previousDate.getTime() + dayInMilliseconds) {
+            streak++
+        } else {
+            break
+        }
+    }
+
+    return streak
+}
+
+function calculateMaxStreak(dates: Date[]): number {
+    const dayInMilliseconds = 24 * 60 * 60 * 1000
+    let streak = 1
+    if (dates.length == 0) {
+        streak = 0
+    }
+
+    let maxStreak = 0
+    for (let i = 1; i < dates.length; i++) {
+        const currentDate = dates[i - 1]
+        const previousDate = dates[i]
+
+        if (currentDate.getTime() === previousDate.getTime() + dayInMilliseconds) {
+            streak++
+            if (streak > maxStreak)
+                maxStreak = streak
+        } else {
+            streak = 1
+        }
+    }
+
+    if (streak > maxStreak)
+        maxStreak = streak
+
+    return maxStreak
+}
+
 router.get('/:id/records', restrict, async (req: TypedRequest<any, { id: string }>, res: Response) => {
     const userid = req.session.userid
     const habitid: number = +req.params.id
