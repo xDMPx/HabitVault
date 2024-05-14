@@ -46,7 +46,7 @@ interface Habit {
 
         <div class="drawer-side z-40">
             <label for="side-menu-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-            <div class="p-4 w-80 min-h-full bg-base-200">
+            <div class="flex flex-col p-4 w-80 min-h-full bg-base-200">
                 <HelloWorld class="p-2" msg="HabitVault" />
                 <div class="flex-row divide-x divide-gray-700">
                     <RouterLink class="p-2" active-class="text-primary" to="/">Home</RouterLink>

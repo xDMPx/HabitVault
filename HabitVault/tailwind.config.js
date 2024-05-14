@@ -9,7 +9,14 @@ export default {
     },
     plugins: [require("daisyui")],
     daisyui: {
-        themes: ["dracula"],
+        themes: ["dracula",
+            {
+                light: {
+                    ...require("daisyui/src/theming/themes")["light"],
+                    secondary: "#32936F",
+                },
+            },
+        ]
     }
 }
 

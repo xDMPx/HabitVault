@@ -6,16 +6,27 @@ import HelloWorld from '../components/HelloWorld.vue'
 <template>
     <div class="flex flex-col h-dvh p-4 bg-base-300">
         <header>
-            <div class="wrapper">
-                <HelloWorld class="p-2" msg="HabitVault" />
+            <div class="flex justify-between">
+                <div class="wrapper">
+                    <HelloWorld class="p-2" msg="HabitVault" />
 
-                <nav class="p-2 px-4">
-                    <div class="flex-row divide-x divide-gray-700">
-                        <RouterLink class="px-2 :hover:" active-class="text-primary" to="/login">Log in</RouterLink>
-                        <RouterLink class="px-2" active-class="text-primary" to="/register">Register</RouterLink>
-                    </div>
-                </nav>
+                    <nav class="p-2 px-4">
+                        <div class="flex-row divide-x divide-gray-700">
+                            <RouterLink class="px-2 :hover:" active-class="text-primary" to="/login">Log in</RouterLink>
+                            <RouterLink class="px-2" active-class="text-primary" to="/register">Register</RouterLink>
+                        </div>
+                    </nav>
 
+                </div>
+                <label class="flex cursor-pointer gap-2">
+                    <span class="material-symbols-outlined">
+                        dark_mode
+                    </span>
+                    <input type="checkbox" value="light" class="toggle theme-controller" />
+                    <span class="material-symbols-outlined">
+                        light_mode
+                    </span>
+                </label>
             </div>
         </header>
 

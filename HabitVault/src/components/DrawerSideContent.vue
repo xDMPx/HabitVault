@@ -46,7 +46,7 @@ function handleAddHabit(name: string, description: string) {
 </script>
 
 <template>
-    <ul class="menu p-4 min-h-full bg-base-200 text-base-content">
+    <ul class="grow menu p-4 bg-base-200 text-base-content">
         <RouterLink v-for="habit in habits" class="p-2 join-item" active-class="text-primary"
             :to="{ path: `/habit/${habit.id}` }"> {{
                 habit.name
@@ -59,6 +59,15 @@ function handleAddHabit(name: string, description: string) {
             </button>
         </div>
     </ul>
+    <label class="flex cursor-pointer gap-2">
+        <span class="material-symbols-outlined">
+            dark_mode
+        </span>
+        <input type="checkbox" value="light" class="toggle theme-controller" />
+        <span class="material-symbols-outlined">
+            light_mode
+        </span>
+    </label>
 
     <dialog id="add_habit_modal" class="modal transition-none">
         <div class="modal-box">
