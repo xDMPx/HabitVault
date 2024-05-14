@@ -97,7 +97,6 @@ router.get('/:id/streak', restrict, async (req: TypedRequest<any, { id: string }
 })
 
 function calculateStreak(dates: Date[]): number {
-    console.log(dates)
     const dayInMilliseconds = 24 * 60 * 60 * 1000
     let streak = 1
     if (dates.length == 0) {

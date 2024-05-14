@@ -31,6 +31,7 @@ function fetchHabit(habitid: string | string[]) {
             console.error(error)
         })
     fetchHabitRecords(habitid)
+    fetchHabitStreak(habitid)
 }
 
 const records: Ref<HabitRecord[]> = ref([])
@@ -40,6 +41,19 @@ function fetchHabitRecords(habitid: string | string[]) {
             if (response.data !== undefined) {
                 records.value = response.data
             }
+        })
+        .catch((error) => {
+            alert("Error")
+            console.error(error)
+        })
+}
+
+const streak: Ref<Streak> = ref({ streak: 0, max_streak: 0 })
+function fetchHabitStreak(habitid: string | string[]) {
+    axios.get<Streak | undefined>(`/user/habits/${habitid}/streak`)
+        .then((response) => {
+            if (response.data !== undefined)
+                streak.value = response.data
         })
         .catch((error) => {
             alert("Error")
@@ -89,6 +103,11 @@ interface HabitRecord {
     userId: number
 }
 
+interface Streak {
+    streak: number,
+    max_streak: number
+}
+
 const form = computed(() => {
     return {
         name: habit.value?.name ?? '',
@@ -102,12 +121,27 @@ const form = computed(() => {
         <div class="flex">
             <div class="hero">
                 <div class="hero-content flex-col mr-auto">
-                    <div>
-                        <h1 class="text-5xl font-bold"> {{ habit?.name }} </h1>
-                        <p class="py-6"> {{ habit?.description }} </p>
+                    <h1 class="text-5xl font-bold"> {{ habit?.name }} </h1>
+                    <p class="py-6"> {{ habit?.description }} </p>
+                </div>
+
+            </div>
+            <div>
+                <div class="stats shadow bg-base-300">
+
+                    <div class="stat place-items-center">
+                        <div class="stat-title">Streak</div>
+                        <div class="stat-value text-secondary">{{ streak.streak }}</div>
                     </div>
+
+                    <div class="stat place-items-center">
+                        <div class="stat-title">Max Streak</div>
+                        <div class="stat-value">{{ streak.max_streak }}</div>
+                    </div>
+
                 </div>
             </div>
+
             <div>
                 <div class="dropdown dropdown-end">
                     <div tabindex="0" role="button" class="btn btn-ghost rounded-btn">
