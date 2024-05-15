@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref, type Ref, watch } from 'vue'
-import axios from 'axios'
-
-import HabitForm from './HabitForm.vue';
+import HabitForm from './HabitForm.vue'
+import { postHabit, type Habit } from '@/habit/Habit';
 
 const emit = defineEmits<{
     updateHabits: []
@@ -21,25 +20,10 @@ watch(() => props.habits, (newHabits, _oldHabits) => {
         habits.value = newHabits
 })
 
-interface Habit {
-    id: number
-    name: string
-    description: string
-    userId: number
-}
-
 function handleAddHabit(name: string, description: string) {
-    axios.post('/user/habits', { name: name, description: description })
-        .then((response) => {
-            console.log(response)
-            emit('updateHabits')
-
-        })
-        .catch((error) => {
-            alert("Adding habit failed")
-            console.error(error)
-        })
-
+    postHabit({ name: name, description: description }, (_res) => {
+        emit('updateHabits')
+    }, (err) => { alert(err) })
     const modal = document.getElementById("add_habit_modal") as HTMLDialogElement | null
     modal?.close()
 }

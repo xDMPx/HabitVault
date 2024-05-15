@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { watch, ref, type Ref, computed } from 'vue'
-import axios from 'axios'
 import { useRoute, useRouter } from 'vue-router'
-
-import HabitForm from '@/components/HabitForm.vue';
+import HabitForm from '@/components/HabitForm.vue'
+import { type Habit, type Streak, getHabit, getHabitStreak, putHabit, deleteHabit } from '@/habit/Habit';
+import { type HabitRecord, getHabitRecords } from '@/habit/HabitRecord';
 
 const emit = defineEmits<{
     updateHabits: []
@@ -13,22 +13,21 @@ const habit: Ref<Habit | undefined> = ref()
 
 const route = useRoute()
 const router = useRouter()
-const habitid = route.params.id
+let habitid = route.params.id
 watch(() => route.params.id, (newId, _oldId) => {
-    const habitid = newId
+    habitid = newId
     fetchHabit(habitid)
 })
 fetchHabit(habitid)
 
 function fetchHabit(habitid: string | string[]) {
-    axios.get<Habit | undefined>(`/user/habits/${habitid}`)
-        .then((response) => {
-            if (response.data !== undefined)
-                habit.value = response.data
-        })
-        .catch((error) => {
-            alert("Error")
-            console.error(error)
+    getHabit(habitid,
+        (res) => {
+            if (res !== undefined)
+                habit.value = res
+        },
+        (err) => {
+            alert(err)
         })
     fetchHabitRecords(habitid)
     fetchHabitStreak(habitid)
@@ -36,76 +35,54 @@ function fetchHabit(habitid: string | string[]) {
 
 const records: Ref<HabitRecord[]> = ref([])
 function fetchHabitRecords(habitid: string | string[]) {
-    axios.get<HabitRecord[] | undefined>(`/user/habits/${habitid}/records`)
-        .then((response) => {
-            if (response.data !== undefined) {
-                records.value = response.data
-            }
-        })
-        .catch((error) => {
-            alert("Error")
-            console.error(error)
+    getHabitRecords(habitid,
+        (res) => {
+            records.value = res
+        },
+        (err) => {
+            alert(err)
         })
 }
 
 const streak: Ref<Streak> = ref({ streak: 0, max_streak: 0 })
 function fetchHabitStreak(habitid: string | string[]) {
-    axios.get<Streak | undefined>(`/user/habits/${habitid}/streak`)
-        .then((response) => {
-            if (response.data !== undefined)
-                streak.value = response.data
-        })
-        .catch((error) => {
-            alert("Error")
-            console.error(error)
+    getHabitStreak(habitid,
+        (res) => {
+            if (res !== undefined)
+                streak.value = res
+        },
+        (err) => {
+            alert(err)
         })
 }
 
-function deleteHabit() {
-    axios.delete(`/user/habits/${habitid}`)
-        .then((_response) => {
+function handleDeleteHabit() {
+    deleteHabit(habitid,
+        () => {
             emit('updateHabits')
             router.replace('/')
-        })
-        .catch((error) => {
-            alert("Error")
-            console.error(error)
-        })
+        },
+        (err) => {
+            alert(err)
+        }
+    )
 }
 
 function handleEditHabit(name: string, description: string) {
-    axios.put(`/user/habits/${habitid}`, { name: name, description: description })
-        .then((response) => {
-            console.log(response)
-            fetchHabit(habitid)
-            emit('updateHabits')
-        })
-        .catch((error) => {
-            alert("Editing habit failed")
-            console.error(error)
-        })
-
+    if (habit.value !== undefined) {
+        habit.value.name = name
+        habit.value.description = description
+        putHabit(habit.value,
+            (_res) => {
+                fetchHabit(habitid)
+                emit('updateHabits')
+            },
+            (err) => {
+                alert(err)
+            })
+    }
     const modal = document.getElementById("edit_habit_modal") as HTMLDialogElement | null
     modal?.close()
-}
-
-interface Habit {
-    id: number
-    name: string
-    description: string
-    userId: number
-}
-
-interface HabitRecord {
-    id: number
-    date: string
-    habitId: number
-    userId: number
-}
-
-interface Streak {
-    streak: number,
-    max_streak: number
 }
 
 const form = computed(() => {
@@ -120,9 +97,9 @@ const form = computed(() => {
     <div>
         <div class="flex">
             <div class="hero">
-                <div class="hero-content flex-col mr-auto">
+                <div class="hero-content flex-col mr-auto items-start">
                     <h1 class="text-5xl font-bold"> {{ habit?.name }} </h1>
-                    <p class="py-6"> {{ habit?.description }} </p>
+                    <p class="py-6 pl-6"> {{ habit?.description }} </p>
                 </div>
 
             </div>
@@ -187,7 +164,7 @@ const form = computed(() => {
                 Are you sure you want to delete this habit? <br>
                 This action cannot be undone.
             </h3>
-            <form @submit.prevent="deleteHabit">
+            <form @submit.prevent="handleDeleteHabit">
                 <div class="flex justify-center p-4 gap-4">
                     <div class="form-control">
                         <button class="btn btn-primary">Yes</button>

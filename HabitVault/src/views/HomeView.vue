@@ -2,6 +2,8 @@
 import { ref, type Ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
+import { type Habit } from '@/habit/Habit'
+import { type HabitRecord, getRecords } from '@/habit/HabitRecord'
 
 const route = useRoute()
 const router = useRouter()
@@ -31,7 +33,6 @@ watch(() => getWeekOffset(), (newOffset, _oldOffset) => {
     fetchRecords()
 })
 
-
 function getWeekOffset(): number {
     return +(route.query.week?.toString() ?? '')
 }
@@ -40,16 +41,14 @@ const records: Ref<HabitRecord[]> = ref([])
 fetchRecords()
 
 function fetchRecords() {
-    axios.get<HabitRecord[] | undefined>('/user/records', { params: { from: weekStartDate(), to: weekEndDate() } })
-        .then((response) => {
-            if (response.data !== undefined) {
-                records.value = response.data
-            }
-        })
-        .catch((error) => {
-            alert("Error")
-            console.error(error)
-        })
+    getRecords({ from: weekStartDate(), to: weekEndDate() },
+        (res) => {
+            records.value = res
+        },
+        (err) => {
+            alert(err)
+        }
+    )
 }
 
 const habitRecordRow = computed((): HabitRecordRow[] => {
@@ -136,13 +135,6 @@ function todayDayStart(): Date {
     return today
 }
 
-interface Habit {
-    id: number
-    name: string
-    description: string
-    userId: number
-}
-
 interface HabitRecordRow {
     habitid: number
     name: string
@@ -152,13 +144,6 @@ interface HabitRecordRow {
 interface Checked {
     recordid: number | undefined
     checked: boolean
-}
-
-interface HabitRecord {
-    id: number
-    date: string
-    habitId: number
-    userId: number
 }
 
 function handleCheckBoxStateChange(habit_id: number, day_index: number, recordid: number | undefined) {

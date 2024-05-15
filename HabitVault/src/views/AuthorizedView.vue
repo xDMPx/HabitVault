@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import axios from 'axios'
 import { ref, type Ref } from 'vue'
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from '../components/HelloWorld.vue'
 import DrawerSideContent from '../components/DrawerSideContent.vue'
-import axios from 'axios'
+import { type Habit, getHabits } from '@/habit/Habit'
 
 const emit = defineEmits<{
     updateAuthState: [auth: boolean]
@@ -16,33 +17,21 @@ function signOut() {
 }
 
 const habits: Ref<Habit[]> = ref([])
-fetchHabits()
-function fetchHabits() {
-    axios.get<Habit[] | undefined>('/user/habits')
-        .then((response) => {
-            if (response.data !== undefined) {
-                habits.value = response.data
-            }
-        })
-        .catch((error) => {
-            alert("Error")
-            console.error(error)
-        })
+updateHabits()
+function updateHabits() {
+    getHabits(
+        (res) => {
+            if (res != undefined)
+                habits.value = res
+        },
+        (err) => { alert(err) })
 }
-
-interface Habit {
-    id: number
-    name: string
-    description: string
-    userId: number
-}
-
 </script>
 
 <template>
 
     <div class="drawer h-dvh lg:drawer-open">
-        <input id="side-menu-drawer" type="checkbox" class="drawer-toggle" @click="fetchHabits" />
+        <input id="side-menu-drawer" type="checkbox" class="drawer-toggle" @click="updateHabits" />
 
         <div class="drawer-side z-40">
             <label for="side-menu-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
@@ -54,7 +43,7 @@ interface Habit {
                     </RouterLink>
                 </div>
                 <div class="divider" />
-                <DrawerSideContent :habits="habits" @updateHabits="fetchHabits" />
+                <DrawerSideContent :habits="habits" @updateHabits="updateHabits" />
             </div>
         </div>
 
@@ -65,7 +54,7 @@ interface Habit {
                 </span>
             </label>
             <div class="grow">
-                <RouterView :habits="habits" name="AuthorizedView" @updateHabits="fetchHabits" />
+                <RouterView :habits="habits" name="AuthorizedView" @updateHabits="updateHabits" />
             </div>
         </div>
 
