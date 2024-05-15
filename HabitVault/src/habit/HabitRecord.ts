@@ -1,9 +1,9 @@
 import axios from 'axios'
 
 export interface HabitRecord {
-    id: number
+    id: string
     date: string
-    habitId: number
+    habitId: string
     userId: number
 }
 

@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export interface Habit {
-    id: number
+    id: string
     name: string
     description: string
     userId: number

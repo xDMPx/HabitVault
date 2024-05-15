@@ -38,8 +38,8 @@ router.post('/', restrict, async (req: TypedRequest<HabitBody>, res: Response) =
 //TODO: check if it's user's habit
 router.get('/:id', restrict, async (req: TypedRequest<any, { id: string }>, res: Response) => {
     const userid = req.session.userid
-    const habitid: number = +req.params.id
-    if (userid !== undefined && !isNaN(habitid)) {
+    const habitid = req.params.id
+    if (userid !== undefined && habitid !== undefined) {
         const habit = await prisma.habit.findFirst({
             where: { id: habitid },
         })
@@ -52,10 +52,10 @@ router.get('/:id', restrict, async (req: TypedRequest<any, { id: string }>, res:
 //TODO: data validation, check if it's user's habit
 router.put('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string }>, res: Response) => {
     const userid = req.session.userid
-    const habitid: number = +req.params.id
+    const habitid = req.params.id
     const name = req.body.name
     const description = req.body.description
-    if (name !== undefined && description !== undefined && !isNaN(habitid)) {
+    if (name !== undefined && description !== undefined && habitid !== undefined) {
         const habit = await prisma.habit.update({
             where: { id: habitid },
             data: {
@@ -73,8 +73,8 @@ router.put('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string }>
 
 //TODO: data validation, check if it's user's habit
 router.delete('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string }>, res: Response) => {
-    const habitid: number = +req.params.id
-    if (!isNaN(habitid)) {
+    const habitid = req.params.id
+    if (habitid !== undefined) {
         const habit = await prisma.habit.delete({
             where: { id: habitid },
         })
@@ -86,7 +86,7 @@ router.delete('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string
 
 router.get('/:id/streak', restrict, async (req: TypedRequest<any, { id: string }>, res: Response) => {
     const userid = req.session.userid
-    const habitid: number = +req.params.id
+    const habitid = req.params.id
     const dates = await prisma.habitRecord.findMany({
         where: { habitId: habitid, userId: userid },
         select: { date: true },
@@ -146,7 +146,7 @@ function calculateMaxStreak(dates: Date[]): number {
 
 router.get('/:id/records', restrict, async (req: TypedRequest<any, { id: string }>, res: Response) => {
     const userid = req.session.userid
-    const habitid: number = +req.params.id
+    const habitid = req.params.id
     const habit = await prisma.habit.findFirst({
         where: { id: habitid, userId: userid },
         include: { records: true }
@@ -157,9 +157,9 @@ router.get('/:id/records', restrict, async (req: TypedRequest<any, { id: string 
 //TODO: data validation, check if record already exists 
 router.post('/:id/records/', restrict, async (req: TypedRequest<HabitRecordBody, { id: string }>, res: Response) => {
     const userid = req.session.userid
-    const habitid: number = +req.params.id
+    const habitid = req.params.id
     const date = req.body.date
-    if (date !== undefined && userid !== undefined && !isNaN(habitid)) {
+    if (date !== undefined && userid !== undefined && habitid !== undefined) {
         const habit = await prisma.habitRecord.create({
             data: {
                 habitId: habitid,
@@ -177,10 +177,9 @@ router.post('/:id/records/', restrict, async (req: TypedRequest<HabitRecordBody,
 router.delete('/:id/records/:recordid', restrict, async (req: TypedRequest<any, { id: string, recordid: string }>,
     res: Response) => {
     const userid = req.session.userid
-    const habitid: number = +req.params.id
-    const recordid: number = +req.params.recordid
-    if (!isNaN(habitid) && !isNaN(recordid)) {
-        console.log(`${habitid} | ${recordid}`)
+    const habitid = req.params.id
+    const recordid = req.params.recordid
+    if (habitid !== undefined && recordid !== undefined) {
         const habit = await prisma.habitRecord.delete({
             where: { id: recordid, habitId: habitid },
         })
