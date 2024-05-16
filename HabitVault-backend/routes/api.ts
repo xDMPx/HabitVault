@@ -16,7 +16,6 @@ router.get('/authorized', restrict, async (_req: Request, res: Response) => {
     res.json()
 })
 
-//TODO: data validation, check if username already taken
 router.post('/register', async (req: TypedRequest<RegisterBody>, res: Response) => {
     const username = req.body.username
     const password = req.body.password
@@ -25,18 +24,46 @@ router.post('/register', async (req: TypedRequest<RegisterBody>, res: Response) 
             username: username
         }
     })
-    if (user_count === 0 && username !== undefined && password !== undefined) {
-        const user = await prisma.user.create({
-            data: {
-                username: username,
-                password: password
-            }
+
+    if (username === undefined) {
+        res.status(400).json({
+            error: "Username not provided"
         })
-        res.json(user)
-    } else {
-        res.status(400).json()
+        return
     }
+    else if (password === undefined) {
+        res.status(400).json({
+            error: "Password not provided"
+        })
+        return
+    }
+    else if (user_count !== 0) {
+        res.status(400).json({
+            error: "Username already taken"
+        })
+        return
+    }
+    else if (!isValidUserName(username)) {
+        res.status(400).json({
+            error: "Invalid Username"
+        })
+        return
+    }
+
+    const user = await prisma.user.create({
+        data: {
+            username: username,
+            password: password
+        }
+    })
+    res.json(user)
+
 })
+
+function isValidUserName(username: string): Boolean {
+    const usernameRegex = /^[a-zA-Z][a-zA-Z0-9._-]{3,29}$/
+    return usernameRegex.test(username)
+}
 
 router.post('/login', async (req: TypedRequest<LoginBody>, res: Response) => {
     const username = req.body.username
