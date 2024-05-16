@@ -15,8 +15,7 @@ datasource db {
 }
 
 model User {
-    id       Int           @id @default(autoincrement())
-    username String
+    username String        @id
     password String
     habits   Habit[]
     records  HabitRecord[]
@@ -26,8 +25,8 @@ model Habit {
     id          String        @id @default(uuid())
     name        String
     description String
-    User        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId      Int
+    User        User          @relation(fields: [userId], references: [username], onDelete: Cascade)
+    userId      String
     records     HabitRecord[]
 }
 
@@ -36,6 +35,6 @@ model HabitRecord {
     date    DateTime
     habitId String
     Habit   Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
-    User    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId  Int
+    User    User     @relation(fields: [userId], references: [username], onDelete: Cascade)
+    userId  String
 }

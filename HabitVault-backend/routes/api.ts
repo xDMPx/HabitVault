@@ -20,7 +20,12 @@ router.get('/authorized', restrict, async (_req: Request, res: Response) => {
 router.post('/register', async (req: TypedRequest<RegisterBody>, res: Response) => {
     const username = req.body.username
     const password = req.body.password
-    if (username !== undefined && password !== undefined) {
+    const user_count = await prisma.user.count({
+        where: {
+            username: username
+        }
+    })
+    if (user_count === 0 && username !== undefined && password !== undefined) {
         const user = await prisma.user.create({
             data: {
                 username: username,
@@ -44,7 +49,7 @@ router.post('/login', async (req: TypedRequest<LoginBody>, res: Response) => {
         })
         if (user?.password === password) {
             req.session.regenerate(() => {
-                req.session.userid = user.id
+                req.session.username = user.username
                 res.json()
             });
         }

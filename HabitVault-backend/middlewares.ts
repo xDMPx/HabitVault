@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express'
 
 declare module 'express-session' {
     interface SessionData {
-        userid: number | undefined
+        username: string | undefined
     }
 }
 
@@ -12,7 +12,7 @@ export function log(req: Request, _res: Response, next: NextFunction) {
 }
 
 export function restrict(req: Request, res: Response, next: NextFunction) {
-    if (req.session.userid !== undefined) {
+    if (req.session.username !== undefined) {
         next()
     } else {
         res.status(401).json()

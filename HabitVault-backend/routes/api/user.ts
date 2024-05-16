@@ -12,10 +12,10 @@ router.get('/records', restrict, async (req: TypedRequest<any, any, { from: stri
     const from = new Date(req.query.from)
     const to = new Date(req.query.to)
 
-    const userid = req.session.userid
+    const userid = req.session.username
     if (!isNaN(from.getTime()) && !isNaN(to.getTime())) {
         const user = await prisma.user.findFirst({
-            where: { id: userid },
+            where: { username: userid },
             include: {
                 records: {
                     where: {
@@ -31,7 +31,7 @@ router.get('/records', restrict, async (req: TypedRequest<any, any, { from: stri
         res.json(user?.records)
     } else {
         const user = await prisma.user.findFirst({
-            where: { id: userid },
+            where: { username: userid },
             include: { records: true }
         })
 
