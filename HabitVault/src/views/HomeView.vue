@@ -136,17 +136,17 @@ function todayDayStart(): Date {
 }
 
 interface HabitRecordRow {
-    habitid: number
+    habitid: string
     name: string
     checked: Checked[]
 }
 
 interface Checked {
-    recordid: number | undefined
+    recordid: string | undefined
     checked: boolean
 }
 
-function handleCheckBoxStateChange(habit_id: number, day_index: number, recordid: number | undefined) {
+function handleCheckBoxStateChange(habit_id: string, day_index: number, recordid: string | undefined) {
     const today = todayDayStart()
     // Monday start of the week
     const dayOfWeek = (today.getDay() + 6) % 7

@@ -7,6 +7,7 @@ axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL
 declare module 'vue-router' {
     interface RouteMeta {
         requiresAuth: boolean
+        requiresAdmin: boolean
     }
 }
 
@@ -16,36 +17,69 @@ const router = createRouter({
         {
             path: '/',
             name: 'home',
-            meta: { requiresAuth: true },
+            meta: {
+                requiresAuth: true,
+                requiresAdmin: false
+            },
             components: { AuthorizedView: () => import('../views/HomeView.vue') }
         },
         {
             path: '/habit/:id',
             name: 'habit',
-            meta: { requiresAuth: true },
+            meta: {
+                requiresAuth: true,
+                requiresAdmin: false
+            },
             components: { AuthorizedView: () => import('../views/HabitView.vue') }
 
         },
         {
             path: '/login',
             name: 'login',
-            meta: { requiresAuth: false },
+            meta: {
+                requiresAuth: false,
+                requiresAdmin: false
+            },
             component: LoginView
         },
         {
             path: '/register',
             name: 'register',
-            meta: { requiresAuth: false },
+            meta: {
+                requiresAuth: false,
+                requiresAdmin: false
+            },
             // route level code-splitting
             // this generates a separate chunk (About.[hash].js) for this route
             // which is lazy-loaded when the route is visited.
             component: () => import('../views/RegisterView.vue')
-        }
+        },
+        {
+            path: '/admin',
+            name: 'admin',
+            meta: {
+                requiresAuth: false,
+                requiresAdmin: true
+            },
+            components: { AdminView: () => import('../views/AdminView.vue') }
+        },
     ]
 })
 
 router.beforeEach(async (to) => {
-    if (to.meta.requiresAuth) {
+    if (to.meta.requiresAdmin) {
+        const authorized = await axios.get('/adminAuthorized')
+            .then(() => true)
+            .catch(() => false)
+        console.log(authorized)
+        console.log(to)
+        if (!authorized) {
+            return {
+                path: '/',
+            }
+        }
+    }
+    else if (to.meta.requiresAuth) {
         const authorized = await axios.get('/authorized')
             .then(() => true)
             .catch(() => false)
