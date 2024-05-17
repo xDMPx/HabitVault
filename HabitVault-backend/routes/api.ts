@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express'
 import { PrismaClient } from '@prisma/client'
 
-import { restrict } from '../middlewares'
+import { restrict, adminRestrict } from '../middlewares'
 import { TypedRequest, RegisterBody, LoginBody } from '../interfaces'
 
 const router = Router()
@@ -13,6 +13,10 @@ router.get('/users', restrict, async (_req: Request, res: Response) => {
 })
 
 router.get('/authorized', restrict, async (_req: Request, res: Response) => {
+    res.json()
+})
+
+router.get('/adminAuthorized', adminRestrict, async (_req: Request, res: Response) => {
     res.json()
 })
 

@@ -17,6 +17,7 @@ datasource db {
 model User {
     username String        @id
     password String
+    admin    Boolean       @default(false)
     habits   Habit[]
     records  HabitRecord[]
 }
