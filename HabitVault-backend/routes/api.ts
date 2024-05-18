@@ -7,11 +7,6 @@ import { TypedRequest, RegisterBody, LoginBody } from '../interfaces'
 const router = Router()
 const prisma = new PrismaClient()
 
-router.get('/users', restrict, async (_req: Request, res: Response) => {
-    const users = await prisma.user.findMany()
-    res.json(users)
-})
-
 router.get('/authorized', restrict, async (_req: Request, res: Response) => {
     res.json()
 })

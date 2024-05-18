@@ -36,6 +36,7 @@ app.use(cors({
 app.use(log)
 
 app.use('/api/', require('./routes/api'))
+app.use('/api/admin', require('./routes/api/admin'))
 app.use('/api/user', require('./routes/api/user'))
 app.use('/api/user/habits', require('./routes/api/user/habits'))
 
