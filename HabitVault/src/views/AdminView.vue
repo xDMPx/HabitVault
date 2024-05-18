@@ -3,10 +3,10 @@ import HelloWorld from '@/components/HelloWorld.vue';
 import axios from 'axios'
 import { ref, type Ref } from 'vue'
 
-const users = ref()
-axios.get('/users').then((response) => {
-    users.value = response.data
-
+const users: Ref<User[]> = ref([])
+axios.get<User[] | undefined>('/users').then((response) => {
+    if (response.data !== undefined)
+        users.value = response.data
 })
 
 const emit = defineEmits<{
@@ -17,6 +17,12 @@ function signOut() {
     axios.post('/signout').then(() => {
         emit('updateAuthState', false)
     })
+}
+
+interface User {
+    username: string,
+    password: string,
+    admin: boolean,
 }
 
 </script>
@@ -56,7 +62,24 @@ function signOut() {
                 </span>
             </label>
             <div class="grow">
-                {{ users }}
+                <div class="overflow-x-auto">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Admin</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="user in users">
+                                <td> {{ user.username }} </td>
+                                <td>
+                                    <input type="checkbox" :checked="user.admin" class="checkbox" disabled />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
