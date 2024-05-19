@@ -25,3 +25,9 @@ export interface HabitBody {
 export interface HabitRecordBody {
     date: string | undefined,
 }
+
+export interface Session {
+    cookie: any,
+    id: string,
+    username: string
+}

@@ -10,10 +10,9 @@ import { log } from './middlewares'
 dotenv.config()
 
 const redis = new Redis()
-const redisStore = new RedisStore({
+export const redisStore = new RedisStore({
     client: redis,
 })
-
 const app = express()
 app.use(express.json())
 app.use(session({
