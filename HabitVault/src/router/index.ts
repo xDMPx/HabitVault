@@ -71,8 +71,6 @@ router.beforeEach(async (to) => {
         const authorized = await axios.get('/adminAuthorized')
             .then(() => true)
             .catch(() => false)
-        console.log(authorized)
-        console.log(to)
         if (!authorized) {
             return {
                 path: '/',
