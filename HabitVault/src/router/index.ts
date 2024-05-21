@@ -4,10 +4,16 @@ import axios from 'axios'
 
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL
 
+
+export const enum UserType {
+    Unknown,
+    Normal,
+    Admin
+}
+
 declare module 'vue-router' {
     interface RouteMeta {
-        requiresAuth: boolean
-        requiresAdmin: boolean
+        requiredUserType: UserType
     }
 }
 
@@ -18,8 +24,7 @@ const router = createRouter({
             path: '/',
             name: 'home',
             meta: {
-                requiresAuth: true,
-                requiresAdmin: false
+                requiredUserType: UserType.Normal
             },
             components: { AuthorizedView: () => import('../views/HomeView.vue') }
         },
@@ -27,8 +32,7 @@ const router = createRouter({
             path: '/habit/:id',
             name: 'habit',
             meta: {
-                requiresAuth: true,
-                requiresAdmin: false
+                requiredUserType: UserType.Normal
             },
             components: { AuthorizedView: () => import('../views/HabitView.vue') }
 
@@ -37,8 +41,7 @@ const router = createRouter({
             path: '/login',
             name: 'login',
             meta: {
-                requiresAuth: false,
-                requiresAdmin: false
+                requiredUserType: UserType.Unknown
             },
             component: LoginView
         },
@@ -46,8 +49,7 @@ const router = createRouter({
             path: '/register',
             name: 'register',
             meta: {
-                requiresAuth: false,
-                requiresAdmin: false
+                requiredUserType: UserType.Unknown
             },
             // route level code-splitting
             // this generates a separate chunk (About.[hash].js) for this route
@@ -58,8 +60,7 @@ const router = createRouter({
             path: '/admin',
             name: 'admin',
             meta: {
-                requiresAuth: false,
-                requiresAdmin: true
+                requiredUserType: UserType.Admin
             },
             components: { AdminView: () => import('../views/AdminView.vue') }
         },
@@ -67,7 +68,7 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to) => {
-    if (to.meta.requiresAdmin) {
+    if (to.meta.requiredUserType == UserType.Admin) {
         const authorized = await axios.get('/adminAuthorized')
             .then(() => true)
             .catch(() => false)
@@ -77,7 +78,7 @@ router.beforeEach(async (to) => {
             }
         }
     }
-    else if (to.meta.requiresAuth) {
+    else if (to.meta.requiredUserType == UserType.Normal) {
         const authorized = await axios.get('/authorized')
             .then(() => true)
             .catch(() => false)

@@ -6,14 +6,9 @@ import axios from 'axios'
 import { ref, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AdminView from './views/AdminView.vue'
+import { UserType } from './router'
 
 const router = useRouter()
-
-const enum UserType {
-    Unknown,
-    Normal,
-    Admin
-}
 
 const userType: Ref<UserType> = ref(UserType.Unknown)
 
