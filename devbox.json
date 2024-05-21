@@ -2,7 +2,8 @@
   "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.10.5/.schema/devbox.schema.json",
   "packages": {
     "nodejs":      "21.7.3",
-    "openssl_3_2": "3.2.1"
+    "openssl_3_2": "3.2.1",
+    "nodePackages.node-gyp": "latest"
   },
   "env": {
     "DEVBOX_COREPACK_ENABLED": "true"
