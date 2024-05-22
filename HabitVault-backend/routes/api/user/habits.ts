@@ -16,16 +16,54 @@ router.get('/', restrict, async (req: Request, res: Response) => {
     res.json(user_habits?.habits)
 })
 
-//TODO: data validation, check if habit already exists 
 router.post('/', restrict, async (req: TypedRequest<HabitBody>, res: Response) => {
     const userid = req.session.username
     const name = req.body.name
     const description = req.body.description
-    if (name !== undefined && description !== undefined && userid !== undefined) {
+
+    const habit_count = await prisma.habit.count({
+        where: {
+            userId: userid,
+            name: name
+        }
+    })
+
+    if (name === undefined) {
+        res.status(400).json({
+            error: "Habit name not provided"
+        })
+        return
+    }
+    else if (description === undefined) {
+        res.status(400).json({
+            error: "Habit description not provided"
+        })
+        return
+    }
+    else if (habit_count !== 0) {
+        res.status(400).json({
+            error: "Habit name already taken"
+        })
+        return
+    }
+    else if (description.length > 140) {
+        res.status(400).json({
+            error: "Habit description too long"
+        })
+        return
+    }
+    else if (!isValidHabitName(name)) {
+        res.status(400).json({
+            error: "Invalid habit name"
+        })
+        return
+    }
+
+    if (userid !== undefined) {
         const habit = await prisma.habit.create({
             data: {
-                name: name,
-                description: description,
+                name: name.trim(),
+                description: description.trim(),
                 userId: userid
             }
         })
@@ -34,6 +72,11 @@ router.post('/', restrict, async (req: TypedRequest<HabitBody>, res: Response) =
         res.status(400).json()
     }
 })
+
+function isValidHabitName(username: string): Boolean {
+    const usernameRegex = /^[A-Z][a-zA-Z0-9.,|/\_-]{2,19}$/
+    return usernameRegex.test(username)
+}
 
 //TODO: check if it's user's habit
 router.get('/:id', restrict, async (req: TypedRequest<any, { id: string }>, res: Response) => {
