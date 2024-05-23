@@ -78,13 +78,15 @@ function isValidHabitName(username: string): Boolean {
     return usernameRegex.test(username)
 }
 
-//TODO: check if it's user's habit
 router.get('/:id', restrict, async (req: TypedRequest<any, { id: string }>, res: Response) => {
     const userid = req.session.username
     const habitid = req.params.id
     if (userid !== undefined && habitid !== undefined) {
         const habit = await prisma.habit.findFirst({
-            where: { id: habitid },
+            where: {
+                id: habitid,
+                userId: userid
+            },
         })
         res.json(habit)
     } else {
@@ -92,13 +94,13 @@ router.get('/:id', restrict, async (req: TypedRequest<any, { id: string }>, res:
     }
 })
 
-//TODO: data validation, check if it's user's habit
+//TODO: data validation
 router.put('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string }>, res: Response) => {
     const userid = req.session.username
     const habitid = req.params.id
     const name = req.body.name
     const description = req.body.description
-    if (name !== undefined && description !== undefined && habitid !== undefined) {
+    if (userid !== undefined && name !== undefined && description !== undefined && habitid !== undefined) {
         const habit = await prisma.habit.update({
             where: { id: habitid },
             data: {
@@ -114,12 +116,15 @@ router.put('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string }>
     }
 })
 
-//TODO: data validation, check if it's user's habit
 router.delete('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string }>, res: Response) => {
     const habitid = req.params.id
-    if (habitid !== undefined) {
+    const userid = req.session.username
+    if (userid !== undefined && habitid !== undefined) {
         const habit = await prisma.habit.delete({
-            where: { id: habitid },
+            where: {
+                id: habitid,
+                userId: userid
+            },
         })
         res.json(habit)
     } else {
@@ -219,11 +224,12 @@ router.post('/:id/records/', restrict, async (req: TypedRequest<HabitRecordBody,
 //TODO: data validation 
 router.delete('/:id/records/:recordid', restrict, async (req: TypedRequest<any, { id: string, recordid: string }>,
     res: Response) => {
+    const userid = req.session.username
     const habitid = req.params.id
     const recordid = req.params.recordid
-    if (habitid !== undefined && recordid !== undefined) {
+    if (userid !== undefined && habitid !== undefined && recordid !== undefined) {
         const habit = await prisma.habitRecord.delete({
-            where: { id: recordid, habitId: habitid },
+            where: { id: recordid, habitId: habitid, userId: userid },
         })
         res.json(habit)
     } else {
