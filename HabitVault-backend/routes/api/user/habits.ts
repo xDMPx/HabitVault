@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client'
 
 import { restrict } from '../../../middlewares'
 import { TypedRequest, HabitBody, HabitRecordBody } from '../../../interfaces'
+import { isValidHabitName, calculateStreak, calculateMaxStreak } from '../../../utils'
 
 const router = Router()
 const prisma = new PrismaClient()
@@ -73,11 +74,6 @@ router.post('/', restrict, async (req: TypedRequest<HabitBody>, res: Response) =
     }
 })
 
-function isValidHabitName(username: string): Boolean {
-    const usernameRegex = /^[A-Z][a-zA-Z0-9.,|/\_-]{2,19}$/
-    return usernameRegex.test(username)
-}
-
 router.get('/:id', restrict, async (req: TypedRequest<any, { id: string }>, res: Response) => {
     const userid = req.session.username
     const habitid = req.params.id
@@ -144,54 +140,6 @@ router.get('/:id/streak', restrict, async (req: TypedRequest<any, { id: string }
     res.json({ streak: calculateStreak(d), max_streak: calculateMaxStreak(d) })
 })
 
-function calculateStreak(dates: Date[]): number {
-    const dayInMilliseconds = 24 * 60 * 60 * 1000
-    let streak = 1
-    if (dates.length == 0) {
-        streak = 0
-    }
-
-    for (let i = 1; i < dates.length; i++) {
-        const currentDate = dates[i - 1]
-        const previousDate = dates[i]
-
-        if (currentDate.getTime() === previousDate.getTime() + dayInMilliseconds) {
-            streak++
-        } else {
-            break
-        }
-    }
-
-    return streak
-}
-
-function calculateMaxStreak(dates: Date[]): number {
-    const dayInMilliseconds = 24 * 60 * 60 * 1000
-    let streak = 1
-    if (dates.length == 0) {
-        streak = 0
-    }
-
-    let maxStreak = 0
-    for (let i = 1; i < dates.length; i++) {
-        const currentDate = dates[i - 1]
-        const previousDate = dates[i]
-
-        if (currentDate.getTime() === previousDate.getTime() + dayInMilliseconds) {
-            streak++
-            if (streak > maxStreak)
-                maxStreak = streak
-        } else {
-            streak = 1
-        }
-    }
-
-    if (streak > maxStreak)
-        maxStreak = streak
-
-    return maxStreak
-}
-
 router.get('/:id/records', restrict, async (req: TypedRequest<any, { id: string }>, res: Response) => {
     const userid = req.session.username
     const habitid = req.params.id
@@ -221,12 +169,13 @@ router.post('/:id/records/', restrict, async (req: TypedRequest<HabitRecordBody,
     }
 })
 
-//TODO: data validation 
 router.delete('/:id/records/:recordid', restrict, async (req: TypedRequest<any, { id: string, recordid: string }>,
     res: Response) => {
     const userid = req.session.username
     const habitid = req.params.id
     const recordid = req.params.recordid
+
+
     if (userid !== undefined && habitid !== undefined && recordid !== undefined) {
         const habit = await prisma.habitRecord.delete({
             where: { id: recordid, habitId: habitid, userId: userid },

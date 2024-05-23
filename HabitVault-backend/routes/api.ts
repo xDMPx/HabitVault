@@ -4,6 +4,7 @@ import * as argon2 from "argon2"
 
 import { restrict, adminRestrict } from '../middlewares'
 import { TypedRequest, RegisterBody, LoginBody } from '../interfaces'
+import { isValidUserName } from '../utils'
 
 const router = Router()
 const prisma = new PrismaClient()
@@ -64,10 +65,6 @@ router.post('/register', async (req: TypedRequest<RegisterBody>, res: Response) 
     })
 })
 
-function isValidUserName(username: string): Boolean {
-    const usernameRegex = /^[a-zA-Z][a-zA-Z0-9._-]{3,29}$/
-    return usernameRegex.test(username)
-}
 
 router.post('/login', async (req: TypedRequest<LoginBody>, res: Response) => {
     const username = req.body.username
