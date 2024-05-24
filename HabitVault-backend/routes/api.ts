@@ -69,7 +69,7 @@ router.post('/register', async (req: TypedRequest<RegisterBody>, res: Response) 
 router.post('/login', async (req: TypedRequest<LoginBody>, res: Response) => {
     const username = req.body.username
     const password = req.body.password
-    if (username !== undefined && password !== undefined) {
+    if (username !== undefined && !isValidUserName(username) && password !== undefined) {
         const user = await prisma.user.findFirst({
             where: {
                 username: username,
