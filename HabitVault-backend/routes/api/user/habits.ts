@@ -77,7 +77,21 @@ router.post('/', restrict, async (req: TypedRequest<HabitBody>, res: Response) =
 router.get('/:id', restrict, async (req: TypedRequest<any, { id: string }>, res: Response) => {
     const userid = req.session.username
     const habitid = req.params.id
-    if (userid !== undefined && habitid !== undefined && isValidUUIDV4(habitid)) {
+
+    if (habitid === undefined) {
+        res.status(400).json({
+            error: "Habit ID not provided"
+        })
+        return
+    }
+    else if (!isValidUUIDV4(habitid)) {
+        res.status(400).json({
+            error: "Invalid habit ID"
+        })
+        return
+    }
+
+    if (userid !== undefined) {
         const habit = await prisma.habit.findFirst({
             where: {
                 id: habitid,
@@ -90,13 +104,49 @@ router.get('/:id', restrict, async (req: TypedRequest<any, { id: string }>, res:
     }
 })
 
-//TODO: data validation
 router.put('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string }>, res: Response) => {
     const userid = req.session.username
     const habitid = req.params.id
     const name = req.body.name
     const description = req.body.description
-    if (userid !== undefined && name !== undefined && description !== undefined && habitid !== undefined && isValidUUIDV4(habitid)) {
+
+    if (name === undefined) {
+        res.status(400).json({
+            error: "Habit name not provided"
+        })
+        return
+    }
+    else if (description === undefined) {
+        res.status(400).json({
+            error: "Habit description not provided"
+        })
+        return
+    }
+    else if (habitid === undefined) {
+        res.status(400).json({
+            error: "Habit ID not provided"
+        })
+        return
+    }
+    else if (description.length > 140) {
+        res.status(400).json({
+            error: "Habit description too long"
+        })
+        return
+    }
+    else if (!isValidHabitName(name)) {
+        res.status(400).json({
+            error: "Invalid habit name"
+        })
+        return
+    }
+    else if (!isValidUUIDV4(habitid)) {
+        res.status(400).json({
+            error: "Invalid habit ID"
+        })
+        return
+    }
+    if (userid !== undefined) {
         const habit = await prisma.habit.update({
             where: { id: habitid },
             data: {
@@ -115,7 +165,21 @@ router.put('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string }>
 router.delete('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string }>, res: Response) => {
     const habitid = req.params.id
     const userid = req.session.username
-    if (userid !== undefined && habitid !== undefined && isValidUUIDV4(habitid)) {
+
+    if (habitid === undefined) {
+        res.status(400).json({
+            error: "Habit ID not provided"
+        })
+        return
+    }
+    else if (!isValidUUIDV4(habitid)) {
+        res.status(400).json({
+            error: "Invalid habit ID"
+        })
+        return
+    }
+
+    if (userid !== undefined) {
         const habit = await prisma.habit.delete({
             where: {
                 id: habitid,
@@ -131,7 +195,21 @@ router.delete('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string
 router.get('/:id/streak', restrict, async (req: TypedRequest<any, { id: string }>, res: Response) => {
     const userid = req.session.username
     const habitid = req.params.id
-    if (userid !== undefined && habitid !== undefined && isValidUUIDV4(habitid)) {
+
+    if (habitid === undefined) {
+        res.status(400).json({
+            error: "Habit ID not provided"
+        })
+        return
+    }
+    else if (!isValidUUIDV4(habitid)) {
+        res.status(400).json({
+            error: "Invalid habit ID"
+        })
+        return
+    }
+
+    if (userid !== undefined) {
         const dates = await prisma.habitRecord.findMany({
             where: { habitId: habitid, userId: userid },
             select: { date: true },
@@ -148,7 +226,22 @@ router.get('/:id/streak', restrict, async (req: TypedRequest<any, { id: string }
 router.get('/:id/records', restrict, async (req: TypedRequest<any, { id: string }>, res: Response) => {
     const userid = req.session.username
     const habitid = req.params.id
-    if (userid !== undefined && habitid !== undefined && isValidUUIDV4(habitid)) {
+
+
+    if (habitid === undefined) {
+        res.status(400).json({
+            error: "Habit ID not provided"
+        })
+        return
+    }
+    else if (!isValidUUIDV4(habitid)) {
+        res.status(400).json({
+            error: "Invalid habit ID"
+        })
+        return
+    }
+
+    if (userid !== undefined) {
         const habit = await prisma.habit.findFirst({
             where: { id: habitid, userId: userid },
             include: { records: true }
@@ -164,8 +257,34 @@ router.get('/:id/records', restrict, async (req: TypedRequest<any, { id: string 
 router.post('/:id/records/', restrict, async (req: TypedRequest<HabitRecordBody, { id: string }>, res: Response) => {
     const userid = req.session.username
     const habitid = req.params.id
-    const date = req.body.date
-    if (date !== undefined && userid !== undefined && habitid !== undefined && isValidUUIDV4(habitid)) {
+    const date = req.body.date !== undefined ? new Date(req.body.date) : undefined
+
+    if (habitid === undefined) {
+        res.status(400).json({
+            error: "Habit ID not provided"
+        })
+        return
+    }
+    else if (!isValidUUIDV4(habitid)) {
+        res.status(400).json({
+            error: "Invalid habit ID"
+        })
+        return
+    }
+    else if (date === undefined) {
+        res.status(400).json({
+            error: "Date not provided"
+        })
+        return
+    }
+    else if (isNaN(date.getTime())) {
+        res.status(400).json({
+            error: "Invalid date provided"
+        })
+        return
+    }
+
+    if (userid !== undefined) {
         const habit = await prisma.habitRecord.create({
             data: {
                 habitId: habitid,
@@ -186,7 +305,32 @@ router.delete('/:id/records/:recordid', restrict, async (req: TypedRequest<any, 
     const recordid = req.params.recordid
 
 
-    if (userid !== undefined && habitid !== undefined && recordid !== undefined && isValidUUIDV4(habitid) && isValidUUIDV4(recordid)) {
+    if (habitid === undefined) {
+        res.status(400).json({
+            error: "Habit ID not provided"
+        })
+        return
+    }
+    else if (!isValidUUIDV4(habitid)) {
+        res.status(400).json({
+            error: "Invalid habit ID"
+        })
+        return
+    }
+    if (habitid === undefined) {
+        res.status(400).json({
+            error: "Record ID not provided"
+        })
+        return
+    }
+    else if (!isValidUUIDV4(habitid)) {
+        res.status(400).json({
+            error: "Invalid record ID"
+        })
+        return
+    }
+
+    if (userid !== undefined) {
         const habit = await prisma.habitRecord.delete({
             where: { id: recordid, habitId: habitid, userId: userid },
         })
