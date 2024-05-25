@@ -36,6 +36,11 @@ function fetchUsers() {
     })
 }
 
+function patchUser(username: string, admin: boolean) {
+    axios.patch(`admin/user/${username}/admin`, { admin: admin })
+        .then(() => { fetchUsers() })
+}
+
 interface User {
     username: string,
     password: string,
@@ -92,7 +97,8 @@ interface User {
                             <tr v-for="user in users">
                                 <td> {{ user.username }} </td>
                                 <td class="text-center">
-                                    <input type="checkbox" :checked="user.admin" class="checkbox" disabled />
+                                    <input type="checkbox" :checked="user.admin" class="checkbox"
+                                        @click="patchUser(user.username, !user.admin)" />
                                 </td>
                                 <td class="text-center">
                                     <button class="btn btn-ghost" @click="handleDeleteUser(user.username)">
