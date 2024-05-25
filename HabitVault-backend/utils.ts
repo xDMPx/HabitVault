@@ -14,6 +14,16 @@ export function isValidUserName(username: string): Boolean {
     return usernameRegex.test(username)
 }
 
+export function stringToBoolean(str: string | undefined): boolean | undefined {
+    if (str === "true") {
+        return true
+    } else if (str === "false") {
+        return false
+    } else {
+        return false
+    }
+}
+
 export function calculateStreak(dates: Date[]): number {
     const dayInMilliseconds = 24 * 60 * 60 * 1000
     let streak = 1
