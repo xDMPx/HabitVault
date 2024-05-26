@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import HelloWorld from '@/components/HelloWorld.vue';
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { ref, type Ref } from 'vue'
+import { useRouter } from 'vue-router';
 
+const router = useRouter()
 const users: Ref<User[]> = ref([])
 fetchUsers()
 
@@ -39,6 +41,11 @@ function fetchUsers() {
 function patchUser(username: string, admin: boolean) {
     axios.patch(`admin/user/${username}/admin`, { admin: admin })
         .then(() => { fetchUsers() })
+        .catch((err: AxiosError) => {
+            const data = err.response?.data as { error: string }
+            alert(`${err.message}\n${data.error}`)
+            router.go(0)
+        })
 }
 
 interface User {
