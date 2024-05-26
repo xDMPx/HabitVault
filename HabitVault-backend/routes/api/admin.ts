@@ -44,7 +44,8 @@ router.delete('/user/:username', adminRestrict, async (req: TypedRequest<any, { 
     }
 })
 
-router.patch('/user/:username/admin', adminRestrict, async (req: TypedRequest<{ admin: string | boolean | undefined }, { username: string }>, res: Response) => {
+router.patch('/user/:username/admin', adminRestrict, async (req:
+    TypedRequest<{ admin: string | boolean | undefined }, { username: string }>, res: Response) => {
     const username = req.params.username
     let admin = undefined
     if (typeof (req.body.admin) === 'boolean') {
@@ -64,7 +65,15 @@ router.patch('/user/:username/admin', adminRestrict, async (req: TypedRequest<{ 
         return
     }
 
-    if (username !== undefined) {
+    const admin_count = await prisma.user.count({
+        where: { admin: true }
+    })
+    if (admin_count - 1 <= 0 && admin === false) {
+        res.status(400).json({
+            error: "At least one admin account must exist. Cannot remove admin status from the last remaining admin."
+        })
+    }
+    else if (username !== undefined) {
         const user = await prisma.user.update({
             where: { username: username },
             data: { admin: admin }
