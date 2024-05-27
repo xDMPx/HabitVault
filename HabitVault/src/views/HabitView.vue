@@ -90,7 +90,7 @@ function updateMonthHabitRecords() {
 
     monthRecords.value = records.value.filter((record) => {
         const date = new Date(record.date)
-        return date >= monthStartDate && date <= monthEndDate
+        return date >= monthStartDate() && date <= monthEndDate()
     })
 
     weeks.value = weeks.value.map((week) => {
@@ -123,26 +123,53 @@ const tableHeadHeaders = [
     "Sunday",
 ]
 
-const monthStartDate = todayDayStart()
-monthStartDate.setDate(1)
-const monthEndDate = todayDayStart()
-monthEndDate.setMonth(monthStartDate.getMonth() + 1)
-monthEndDate.setDate(0)
+let monthOffset = getMonthOffset()
+const month = ref(monthStartDate().toLocaleString('default', { month: 'long' }))
+
+function getMonthOffset(): number {
+    return +(route.query.month?.toString() ?? '')
+}
+
+watch(() => getMonthOffset(), (newOffset, _oldOffset) => {
+    monthOffset = newOffset
+    month.value = monthStartDate().toLocaleString('default', { month: 'long' })
+    generateMonthWeeks()
+})
+
+function monthStartDate(): Date {
+    const monthStartDate = todayDayStart()
+    monthStartDate.setMonth(monthStartDate.getMonth() + monthOffset)
+    monthStartDate.setDate(1)
+
+    return monthStartDate
+}
+
+function monthEndDate(): Date {
+    const monthEndDate = monthStartDate()
+    monthEndDate.setMonth(monthEndDate.getMonth() + 1)
+    monthEndDate.setDate(0)
+
+    return monthEndDate
+}
 
 const weeks: Ref<MonthDay[][]> = ref([])
-let week = ["", "", "", "", "", "", ""]
-for (let day = new Date(monthStartDate); day <= monthEndDate; day.setDate(day.getDate() + 1)) {
-    // Monday start of the week
-    const dayOfWeek = (day.getDay() + 6) % 7
-    week[dayOfWeek] = day.getDate().toString()
-    if (dayOfWeek == 6) {
+function generateMonthWeeks() {
+    weeks.value = []
+    let week = ["", "", "", "", "", "", ""]
+    for (let day = monthStartDate(); day <= monthEndDate(); day.setDate(day.getDate() + 1)) {
+        // Monday start of the week
+        const dayOfWeek = (day.getDay() + 6) % 7
+        week[dayOfWeek] = day.getDate().toString()
+        if (dayOfWeek == 6) {
+            weeks.value.push(week.map((w) => { return { day: w, checked: false } }))
+            week = week.map(() => "")
+        }
+    }
+    if (week[0] != "") {
         weeks.value.push(week.map((w) => { return { day: w, checked: false } }))
-        week = week.map(() => "")
     }
 }
-if (week[0] != "") {
-    weeks.value.push(week.map((w) => { return { day: w, checked: false } }))
-}
+generateMonthWeeks()
 
 const monthRecords: Ref<HabitRecord[]> = ref([])
 function todayDayStart(): Date {
@@ -158,6 +185,14 @@ function todayDayStart(): Date {
 interface MonthDay {
     day: string,
     checked: boolean
+}
+
+function goToPreviosuMonth() {
+    router.push({ path: router.currentRoute.value.path, query: { month: monthOffset - 1 } })
+}
+
+function goToNextMonth() {
+    router.push({ path: router.currentRoute.value.path, query: { month: monthOffset + 1 <= 0 ? monthOffset + 1 : 0 } })
 }
 
 </script>
@@ -210,6 +245,25 @@ interface MonthDay {
                 </div>
             </div>
         </div>
+    </div>
+
+    <div class="join min-w-full justify-center">
+        <button class="flex p-4 join-item text-xl items-center" @click="goToPreviosuMonth">
+            <span class="material-symbols-outlined">
+                chevron_left
+            </span>
+        </button>
+        <h2 class="flex py-4 join-item text-xl items-center"
+            v-if="monthStartDate().getFullYear() === todayDayStart().getFullYear()"> {{ month }}
+        </h2>
+        <h2 class="flex py-4 join-item text-xl items-center" v-else>
+            {{ month }} {{ monthStartDate().getFullYear() }}
+        </h2>
+        <button class="flex p-4 join-item text-xl items-center" @click="goToNextMonth">
+            <span class="material-symbols-outlined">
+                chevron_right
+            </span>
+        </button>
     </div>
 
     <div class="flex flex-nowrap p-4">
