@@ -38,6 +38,7 @@ function fetchHabitRecords(habitid: string | string[]) {
     getHabitRecords(habitid,
         (res) => {
             records.value = res
+            updateMonthHabitRecords()
         },
         (err) => {
             alert(err)
@@ -85,12 +86,80 @@ function handleEditHabit(name: string, description: string) {
     modal?.close()
 }
 
+function updateMonthHabitRecords() {
+
+    monthRecords.value = records.value.filter((record) => {
+        const date = new Date(record.date)
+        return date >= monthStartDate && date <= monthEndDate
+    })
+
+    weeks.value = weeks.value.map((week) => {
+        return week.map((day) => {
+            if (monthRecords.value.map((record) => new Date(record.date).getDate()).includes(+day.day)) {
+                return { day: day.day, checked: true }
+            }
+            else {
+                return { day: day.day, checked: false }
+            }
+        })
+    })
+
+}
+
 const form = computed(() => {
     return {
         name: habit.value?.name ?? '',
         description: habit.value?.description ?? ''
     }
 })
+
+const tableHeadHeaders = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+]
+
+const monthStartDate = todayDayStart()
+monthStartDate.setDate(1)
+const monthEndDate = todayDayStart()
+monthEndDate.setMonth(monthStartDate.getMonth() + 1)
+monthEndDate.setDate(0)
+
+const weeks: Ref<MonthDay[][]> = ref([])
+let week = ["", "", "", "", "", "", ""]
+for (let day = new Date(monthStartDate); day <= monthEndDate; day.setDate(day.getDate() + 1)) {
+    // Monday start of the week
+    const dayOfWeek = (day.getDay() + 6) % 7
+    week[dayOfWeek] = day.getDate().toString()
+    if (dayOfWeek == 6) {
+        weeks.value.push(week.map((w) => { return { day: w, checked: false } }))
+        week = week.map(() => "")
+    }
+}
+if (week[0] != "") {
+    weeks.value.push(week.map((w) => { return { day: w, checked: false } }))
+}
+
+const monthRecords: Ref<HabitRecord[]> = ref([])
+function todayDayStart(): Date {
+    const today = new Date()
+    today.setHours(0)
+    today.setMinutes(0)
+    today.setSeconds(0)
+    today.setMilliseconds(0)
+
+    return today
+}
+
+interface MonthDay {
+    day: string,
+    checked: boolean
+}
+
 </script>
 
 <template>
@@ -143,10 +212,38 @@ const form = computed(() => {
         </div>
     </div>
 
-    <h2 class="text-3xl font-bold"> Records: </h2>
-    <ul class="p-4">
-        <li v-for="record in records"> {{ new Date(record.date).toDateString() }} </li>
-    </ul>
+    <div class="flex flex-nowrap p-4">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th v-for="header in tableHeadHeaders" class="text-center">
+                        {{ header }}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="week in weeks">
+                    <td v-for="day in week">
+                        <div class="flex justify-center">
+                            <div class="w-4 text-center" v-if="!day.checked">
+                                {{ day.day }}
+                            </div>
+                            <div class="bg-secondary w-4 text-center" v-else>
+                                {{ day.day }}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mr-auto">
+        <h2 class="text-3xl font-bold"> Records: </h2>
+        <ul class="p-4">
+            <li v-for="record in records"> {{ new Date(record.date).toDateString() }} </li>
+        </ul>
+    </div>
 
     <dialog id="edit_habit_modal" class="modal">
         <div class="modal-box">
