@@ -68,7 +68,13 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to) => {
-    if (to.meta.requiredUserType == UserType.Admin) {
+    if (to.name === undefined) {
+        return {
+            path: '/'
+        }
+
+    }
+    else if (to.meta.requiredUserType == UserType.Admin) {
         const authorized = await axios.get('/adminAuthorized')
             .then(() => true)
             .catch(() => false)
