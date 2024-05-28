@@ -18,6 +18,8 @@ if (props.habits !== undefined)
 watch(() => props.habits, (newHabits, _oldHabits) => {
     if (newHabits !== undefined)
         habits.value = newHabits
+
+    requestToAddHabit()
 })
 
 function handleAddHabit(name: string, description: string) {
@@ -27,6 +29,14 @@ function handleAddHabit(name: string, description: string) {
     const modal = document.getElementById("add_habit_modal") as HTMLDialogElement | null
     modal?.close()
 }
+
+function requestToAddHabit() {
+    if (habits.value.length === 0) {
+        const modal = document.getElementById("add_habit_modal") as HTMLDialogElement | null
+        modal?.showModal()
+    }
+}
+requestToAddHabit()
 </script>
 
 <template>
