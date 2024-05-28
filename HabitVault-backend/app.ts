@@ -1,4 +1,4 @@
-import express from 'express'
+import express, { NextFunction, Request, Response } from 'express'
 import session from 'express-session'
 import RedisStore from "connect-redis"
 import Redis from "ioredis"
@@ -38,6 +38,9 @@ app.use('/api/', require('./routes/api'))
 app.use('/api/admin', require('./routes/api/admin'))
 app.use('/api/user', require('./routes/api/user'))
 app.use('/api/user/habits', require('./routes/api/user/habits'))
+app.use((_req: Request, res: Response, _next: NextFunction) => {
+    res.destroy()
+})
 
 const port = process.env.PORT || 3000
 app.listen(port, () => {
