@@ -134,6 +134,7 @@ watch(() => getMonthOffset(), (newOffset, _oldOffset) => {
     monthOffset = newOffset
     month.value = monthStartDate().toLocaleString('default', { month: 'long' })
     generateMonthWeeks()
+    updateMonthHabitRecords()
 })
 
 function monthStartDate(): Date {
