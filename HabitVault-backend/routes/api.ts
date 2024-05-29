@@ -53,18 +53,15 @@ router.post('/register', async (req: TypedRequest<RegisterBody>, res: Response, 
             return
         }
 
-        //TODO: handle errors
-        argon2.hash(password).then(async (passhash) => {
-            const user = await prisma.user.create({
-                data: {
-                    username: username,
-                    password: passhash
-                }
-            })
-            res.json(user)
-        }).catch((_err) => {
-            res.status(500).json()
+        const passhash = await argon2.hash(password)
+        const user = await prisma.user.create({
+            data: {
+                username: username,
+                password: passhash
+            }
         })
+
+        res.json(user)
     } catch (err) {
         next(err)
     }
@@ -86,20 +83,19 @@ router.post('/login', async (req: TypedRequest<LoginBody>, res: Response, next: 
                 }
             })
             if (user?.password !== undefined) {
-                argon2.verify(user?.password, password).then((result) => {
-                    if (result) {
-                        //TODO: handle errors
-                        req.session.regenerate((_err) => {
+                const result = await argon2.verify(user?.password, password)
+                if (result) {
+                    req.session.regenerate((err) => {
+                        if (err !== undefined) {
+                            next(err)
+                        } else {
                             req.session.username = user.username
                             res.json()
-                        })
-                    } else {
-                        res.status(400).json()
-                    }
+                        }
+                    })
+                } else {
+                    res.status(400).json()
                 }
-                ).catch((err) => {
-                    next(err)
-                })
             } else {
                 res.status(400).json()
             }

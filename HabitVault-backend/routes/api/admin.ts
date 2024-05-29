@@ -37,15 +37,21 @@ router.delete('/user/:username', adminRestrict, async (req: TypedRequest<any, { 
         }
 
         if (username !== undefined) {
+            await redisStore.all(
+                (err: unknown, data: Session[]) => {
+                    if (err === undefined || err === null) {
+                        data.filter((session) => session.username === username)
+                            .forEach((session) => redisStore.destroy(session.id))
+
+                    } else {
+                        next(err)
+                    }
+                }
+            )
+
             const user = await prisma.user.delete({
                 where: { username: username },
             })
-            //TODO: handle error
-            redisStore.all((_err: unknown, data: Session[]) => {
-                data.filter((session) => session.username === username)
-                    .forEach((session) => redisStore.destroy(session.id))
-            })
-
             res.json(user)
         } else {
             res.status(400).json()
