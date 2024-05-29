@@ -31,7 +31,7 @@ export async function adminRestrict(req: Request, res: Response, next: NextFunct
             select: {
                 admin: true
             }
-        })
+        }).catch((err) => next(err))
 
         if (admin?.admin) {
             next()

@@ -42,6 +42,14 @@ app.use((_req: Request, res: Response, _next: NextFunction) => {
     res.destroy()
 })
 
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    console.error(`${req.ip} ${req.method} ${req.url} => ERROR\n${err}`)
+    if (res.headersSent) {
+        return next(err)
+    }
+    res.status(500).json({ error: "INTERNAL SERVER ERROR" })
+});
+
 const port = process.env.PORT || 3000
 app.listen(port, () => {
     console.log(`HabitVault backend listening on port ${port}`)
