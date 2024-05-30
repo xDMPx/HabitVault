@@ -26,7 +26,13 @@ function handleDeleteUser(username: string) {
 }
 
 function deleteUser(username: string) {
-    axios.delete(`admin/user/${username}`).then(() => { fetchUsers() })
+    axios.delete(`admin/user/${username}`)
+        .then(() => { fetchUsers() })
+        .catch((err: AxiosError) => {
+            const data = err.response?.data as { error: string }
+            alert(`${err.message}\n${data.error}`)
+            router.go(0)
+        })
     const deleteUserModal = document.getElementById("delete_user_modal") as HTMLDialogElement | null
     deleteUserModal?.close()
 }
