@@ -14,6 +14,10 @@ export function isValidUserName(username: string): Boolean {
     return usernameRegex.test(username)
 }
 
+export function isStartOfDay(date: Date) {
+    return date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0 && date.getMilliseconds() === 0
+}
+
 export function stringToBoolean(str: string | undefined): boolean | undefined {
     if (str === "true") {
         return true

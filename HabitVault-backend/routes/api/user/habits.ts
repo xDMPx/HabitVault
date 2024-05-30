@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client'
 
 import { restrict } from '../../../middlewares'
 import { TypedRequest, HabitBody, HabitRecordBody } from '../../../interfaces'
-import { isValidHabitName, calculateStreak, calculateMaxStreak, isValidUUIDV4 } from '../../../utils'
+import { isValidHabitName, calculateStreak, calculateMaxStreak, isValidUUIDV4, isStartOfDay } from '../../../utils'
 
 const router = Router()
 const prisma = new PrismaClient()
@@ -287,7 +287,6 @@ router.get('/:id/records', restrict, async (req: TypedRequest<any, { id: string 
     }
 })
 
-//TODO: data validation, check if record already exists 
 router.post('/:id/records/', restrict, async (req: TypedRequest<HabitRecordBody, { id: string }>, res: Response, next: NextFunction) => {
     try {
         const userid = req.session.username
@@ -312,9 +311,23 @@ router.post('/:id/records/', restrict, async (req: TypedRequest<HabitRecordBody,
             })
             return
         }
-        else if (isNaN(date.getTime())) {
+        else if (isNaN(date.getTime()) || !isStartOfDay(date)) {
             res.status(400).json({
                 error: "Invalid date provided"
+            })
+            return
+        }
+
+        const record_count = await prisma.habitRecord.count({
+            where: {
+                habitId: habitid,
+                date: date,
+                userId: userid,
+            }
+        })
+        if (record_count > 0) {
+            res.status(400).json({
+                error: "Record exists"
             })
             return
         }
