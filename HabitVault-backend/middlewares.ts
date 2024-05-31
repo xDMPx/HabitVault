@@ -16,6 +16,7 @@ export function log(req: Request, _res: Response, next: NextFunction) {
 
 export function restrict(req: Request, res: Response, next: NextFunction) {
     if (req.session.username !== undefined) {
+        res.locals.username = req.session.username
         next()
     } else {
         res.status(401).json()
@@ -34,6 +35,7 @@ export async function adminRestrict(req: Request, res: Response, next: NextFunct
         }).catch((err) => next(err))
 
         if (admin?.admin) {
+            res.locals.username = req.session.username
             next()
         } else {
             res.status(401).json()

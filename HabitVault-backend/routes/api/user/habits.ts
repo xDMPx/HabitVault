@@ -8,9 +8,9 @@ import { isValidHabitName, calculateStreak, calculateMaxStreak, isValidUUIDV4, i
 const router = Router()
 const prisma = new PrismaClient()
 
-router.get('/', restrict, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/', restrict, async (_req: Request, res: Response, next: NextFunction) => {
     try {
-        const userid = req.session.username
+        const userid = res.locals.username
         const user_habits = await prisma.user.findFirst({
             where: { username: userid },
             include: { habits: true }
@@ -23,7 +23,7 @@ router.get('/', restrict, async (req: Request, res: Response, next: NextFunction
 
 router.post('/', restrict, async (req: TypedRequest<HabitBody>, res: Response, next: NextFunction) => {
     try {
-        const userid = req.session.username
+        const userid = res.locals.username
         const name = req.body.name
         const description = req.body.description
 
@@ -84,7 +84,7 @@ router.post('/', restrict, async (req: TypedRequest<HabitBody>, res: Response, n
 
 router.get('/:id', restrict, async (req: TypedRequest<any, { id: string }>, res: Response, next: NextFunction) => {
     try {
-        const userid = req.session.username
+        const userid = res.locals.username
         const habitid = req.params.id
 
         if (habitid === undefined) {
@@ -124,7 +124,7 @@ router.get('/:id', restrict, async (req: TypedRequest<any, { id: string }>, res:
 
 router.put('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string }>, res: Response, next: NextFunction) => {
     try {
-        const userid = req.session.username
+        const userid = res.locals.username
         const habitid = req.params.id
         const name = req.body.name
         const description = req.body.description
@@ -187,7 +187,7 @@ router.put('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string }>
 router.delete('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string }>, res: Response, next: NextFunction) => {
     try {
         const habitid = req.params.id
-        const userid = req.session.username
+        const userid = res.locals.username
 
         if (habitid === undefined) {
             res.status(400).json({
@@ -220,7 +220,7 @@ router.delete('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string
 
 router.get('/:id/streak', restrict, async (req: TypedRequest<any, { id: string }>, res: Response, next: NextFunction) => {
     try {
-        const userid = req.session.username
+        const userid = res.locals.username
         const habitid = req.params.id
 
         if (habitid === undefined) {
@@ -255,7 +255,7 @@ router.get('/:id/streak', restrict, async (req: TypedRequest<any, { id: string }
 
 router.get('/:id/records', restrict, async (req: TypedRequest<any, { id: string }>, res: Response, next: NextFunction) => {
     try {
-        const userid = req.session.username
+        const userid = res.locals.username
         const habitid = req.params.id
 
 
@@ -289,7 +289,7 @@ router.get('/:id/records', restrict, async (req: TypedRequest<any, { id: string 
 
 router.post('/:id/records/', restrict, async (req: TypedRequest<HabitRecordBody, { id: string }>, res: Response, next: NextFunction) => {
     try {
-        const userid = req.session.username
+        const userid = res.locals.username
         const habitid = req.params.id
         const date = req.body.date !== undefined ? new Date(req.body.date) : undefined
 
@@ -352,7 +352,7 @@ router.post('/:id/records/', restrict, async (req: TypedRequest<HabitRecordBody,
 router.delete('/:id/records/:recordid', restrict, async (req: TypedRequest<any, { id: string, recordid: string }>,
     res: Response, next: NextFunction) => {
     try {
-        const userid = req.session.username
+        const userid = res.locals.username
         const habitid = req.params.id
         const recordid = req.params.recordid
 
