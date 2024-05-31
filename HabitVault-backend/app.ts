@@ -1,4 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express'
+import cookieParser from 'cookie-parser'
 import session from 'express-session'
 import RedisStore from "connect-redis"
 import Redis from "ioredis"
@@ -15,6 +16,7 @@ export const redisStore = new RedisStore({
 })
 const app = express()
 app.use(express.json())
+app.use(cookieParser())
 app.use(session({
     store: redisStore,
     resave: false, // required: force lightweight session keep alive (touch)

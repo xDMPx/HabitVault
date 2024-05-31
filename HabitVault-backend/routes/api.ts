@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
 import * as argon2 from "argon2"
+import * as jwt from "jsonwebtoken"
 
 import { restrict, adminRestrict } from '../middlewares'
 import { TypedRequest, RegisterBody, LoginBody } from '../interfaces'
@@ -91,6 +92,50 @@ router.post('/login', async (req: TypedRequest<LoginBody>, res: Response, next: 
                         } else {
                             req.session.username = user.username
                             res.json()
+                        }
+                    })
+                } else {
+                    res.status(400).json()
+                }
+            } else {
+                res.status(400).json()
+            }
+        } else {
+            res.status(400).json()
+        }
+    } catch (err) {
+        next(err)
+    }
+})
+
+router.post('/login/jwt', async (req: TypedRequest<LoginBody>, res: Response, next: NextFunction) => {
+    try {
+        const username = req.body.username
+        const password = req.body.password
+        if (username !== undefined && isValidUserName(username) && password !== undefined) {
+            const user = await prisma.user.findFirst({
+                where: {
+                    username: username,
+                },
+                select: {
+                    username: true,
+                    password: true
+                }
+            })
+            if (user?.password !== undefined) {
+                const result = await argon2.verify(user?.password, password)
+                if (result) {
+                    jwt.sign({ username: username }, "testKey", (err: any, token: any) => {
+                        if (err === null || err === undefined) {
+                            res.cookie("authToken", token, {
+                                maxAge: 31536000000,
+                                secure: false,
+                                sameSite: 'strict',
+                                httpOnly: true
+                            })
+                            res.json({ auth_token: token })
+                        } else {
+                            next(err)
                         }
                     })
                 } else {
