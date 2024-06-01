@@ -10,7 +10,7 @@ import { log } from './middlewares'
 
 dotenv.config()
 
-const redis = new Redis()
+export const redis = new Redis()
 export const redisStore = new RedisStore({
     client: redis,
 })

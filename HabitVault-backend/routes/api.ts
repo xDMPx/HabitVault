@@ -3,9 +3,10 @@ import { PrismaClient } from '@prisma/client'
 import * as argon2 from "argon2"
 import * as jwt from "jsonwebtoken"
 
-import { restrict, adminRestrict } from '../middlewares'
+import { restrict, adminRestrict, restrictJWT } from '../middlewares'
 import { TypedRequest, RegisterBody, LoginBody } from '../interfaces'
 import { isValidUserName } from '../utils'
+import { redis } from '../app'
 
 const router = Router()
 const prisma = new PrismaClient()
@@ -160,6 +161,24 @@ router.post('/signout', restrict, (req: Request, res: Response, next: NextFuncti
             next(err)
         }
     })
+})
+
+router.post('/signout/jwt', restrictJWT, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userid = res.locals.username
+        let lastID = +(await redis.get(`${userid}:lastID`) ?? '0')
+        if (isNaN(lastID)) {
+            lastID = 0
+        }
+
+        lastID += 1
+        await redis.set(`${userid}:lastID`, lastID)
+        await redis.set(`${userid}:${lastID}`, req.cookies.authToken)
+
+        res.clearCookie('authToken').json()
+    } catch (err) {
+        next(err)
+    }
 })
 
 module.exports = router
