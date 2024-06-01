@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
 
-import { adminRestrict } from '../../middlewares'
+import { adminRestrict, adminRestrictJWT } from '../../middlewares'
 import { Session, TypedRequest } from '../../interfaces'
 import { redisStore } from '../../app'
 import { isValidUserName, stringToBoolean } from '../../utils'
@@ -10,6 +10,21 @@ const router = Router()
 const prisma = new PrismaClient()
 
 router.get('/users', adminRestrict, async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+        const users = await prisma.user.findMany({
+            select: {
+                username: true,
+                admin: true
+            }
+        })
+
+        res.json(users)
+    } catch (err) {
+        next(err)
+    }
+})
+
+router.get('/users/jwt', adminRestrictJWT, async (_req: Request, res: Response, next: NextFunction) => {
     try {
         const users = await prisma.user.findMany({
             select: {
