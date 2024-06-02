@@ -1,14 +1,14 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
 
-import { restrict } from '../../../middlewares'
+import { restrictJWT } from '../../../middlewares'
 import { TypedRequest, HabitBody, HabitRecordBody } from '../../../interfaces'
 import { isValidHabitName, calculateStreak, calculateMaxStreak, isValidUUIDV4, isStartOfDay } from '../../../utils'
 
 const router = Router()
 const prisma = new PrismaClient()
 
-router.get('/', restrict, async (_req: Request, res: Response, next: NextFunction) => {
+router.get('/', restrictJWT, async (_req: Request, res: Response, next: NextFunction) => {
     try {
         const userid = res.locals.username
         const user_habits = await prisma.user.findFirst({
@@ -21,7 +21,7 @@ router.get('/', restrict, async (_req: Request, res: Response, next: NextFunctio
     }
 })
 
-router.post('/', restrict, async (req: TypedRequest<HabitBody>, res: Response, next: NextFunction) => {
+router.post('/', restrictJWT, async (req: TypedRequest<HabitBody>, res: Response, next: NextFunction) => {
     try {
         const userid = res.locals.username
         const name = req.body.name
@@ -82,7 +82,7 @@ router.post('/', restrict, async (req: TypedRequest<HabitBody>, res: Response, n
     }
 })
 
-router.get('/:id', restrict, async (req: TypedRequest<any, { id: string }>, res: Response, next: NextFunction) => {
+router.get('/:id', restrictJWT, async (req: TypedRequest<any, { id: string }>, res: Response, next: NextFunction) => {
     try {
         const userid = res.locals.username
         const habitid = req.params.id
@@ -122,7 +122,7 @@ router.get('/:id', restrict, async (req: TypedRequest<any, { id: string }>, res:
     }
 })
 
-router.put('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string }>, res: Response, next: NextFunction) => {
+router.put('/:id', restrictJWT, async (req: TypedRequest<HabitBody, { id: string }>, res: Response, next: NextFunction) => {
     try {
         const userid = res.locals.username
         const habitid = req.params.id
@@ -184,7 +184,7 @@ router.put('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string }>
     }
 })
 
-router.delete('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string }>, res: Response, next: NextFunction) => {
+router.delete('/:id', restrictJWT, async (req: TypedRequest<HabitBody, { id: string }>, res: Response, next: NextFunction) => {
     try {
         const habitid = req.params.id
         const userid = res.locals.username
@@ -218,7 +218,7 @@ router.delete('/:id', restrict, async (req: TypedRequest<HabitBody, { id: string
     }
 })
 
-router.get('/:id/streak', restrict, async (req: TypedRequest<any, { id: string }>, res: Response, next: NextFunction) => {
+router.get('/:id/streak', restrictJWT, async (req: TypedRequest<any, { id: string }>, res: Response, next: NextFunction) => {
     try {
         const userid = res.locals.username
         const habitid = req.params.id
@@ -253,7 +253,7 @@ router.get('/:id/streak', restrict, async (req: TypedRequest<any, { id: string }
     }
 })
 
-router.get('/:id/records', restrict, async (req: TypedRequest<any, { id: string }>, res: Response, next: NextFunction) => {
+router.get('/:id/records', restrictJWT, async (req: TypedRequest<any, { id: string }>, res: Response, next: NextFunction) => {
     try {
         const userid = res.locals.username
         const habitid = req.params.id
@@ -287,7 +287,7 @@ router.get('/:id/records', restrict, async (req: TypedRequest<any, { id: string 
     }
 })
 
-router.post('/:id/records/', restrict, async (req: TypedRequest<HabitRecordBody, { id: string }>, res: Response, next: NextFunction) => {
+router.post('/:id/records/', restrictJWT, async (req: TypedRequest<HabitRecordBody, { id: string }>, res: Response, next: NextFunction) => {
     try {
         const userid = res.locals.username
         const habitid = req.params.id
@@ -349,7 +349,7 @@ router.post('/:id/records/', restrict, async (req: TypedRequest<HabitRecordBody,
     }
 })
 
-router.delete('/:id/records/:recordid', restrict, async (req: TypedRequest<any, { id: string, recordid: string }>,
+router.delete('/:id/records/:recordid', restrictJWT, async (req: TypedRequest<any, { id: string, recordid: string }>,
     res: Response, next: NextFunction) => {
     try {
         const userid = res.locals.username

@@ -33,7 +33,7 @@ export async function restrictJWT(req: Request, res: Response, next: NextFunctio
         if (token === undefined) {
             const authHeader = req.headers['authorization']
             if (authHeader === undefined || !authHeader.startsWith('Bearer ')) {
-                res.status(401).json()
+                restrict(req, res, next)
                 return
             } else {
                 token = authHeader.split(' ')[1]
@@ -101,7 +101,7 @@ export async function adminRestrictJWT(req: Request, res: Response, next: NextFu
         if (token === undefined) {
             const authHeader = req.headers['authorization']
             if (authHeader === undefined || !authHeader.startsWith('Bearer ')) {
-                res.status(401).json()
+                adminRestrict(req, res, next)
                 return
             } else {
                 token = authHeader.split(' ')[1]

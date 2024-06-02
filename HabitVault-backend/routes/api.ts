@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client'
 import * as argon2 from "argon2"
 import * as jwt from "jsonwebtoken"
 
-import { restrict, adminRestrict, restrictJWT } from '../middlewares'
+import { restrictJWT, adminRestrictJWT } from '../middlewares'
 import { TypedRequest, RegisterBody, LoginBody } from '../interfaces'
 import { isValidUserName } from '../utils'
 import { redis } from '../app'
@@ -12,11 +12,11 @@ const router = Router()
 const prisma = new PrismaClient()
 
 
-router.get('/authorized', restrict, async (_req: Request, res: Response) => {
+router.get('/authorized', restrictJWT, async (_req: Request, res: Response) => {
     res.json()
 })
 
-router.get('/adminAuthorized', adminRestrict, async (_req: Request, res: Response) => {
+router.get('/adminAuthorized', adminRestrictJWT, async (_req: Request, res: Response) => {
     res.json()
 })
 
@@ -69,7 +69,7 @@ router.post('/register', async (req: TypedRequest<RegisterBody>, res: Response, 
     }
 })
 
-
+/*
 router.post('/login', async (req: TypedRequest<LoginBody>, res: Response, next: NextFunction) => {
     try {
         const username = req.body.username
@@ -108,8 +108,9 @@ router.post('/login', async (req: TypedRequest<LoginBody>, res: Response, next: 
         next(err)
     }
 })
+*/
 
-router.post('/login/jwt', async (req: TypedRequest<LoginBody>, res: Response, next: NextFunction) => {
+router.post('/login', async (req: TypedRequest<LoginBody>, res: Response, next: NextFunction) => {
     try {
         const username = req.body.username
         const password = req.body.password
@@ -153,7 +154,8 @@ router.post('/login/jwt', async (req: TypedRequest<LoginBody>, res: Response, ne
     }
 })
 
-router.post('/signout', restrict, (req: Request, res: Response, next: NextFunction) => {
+/*
+router.post('/signout', restrictJWT, (req: Request, res: Response, next: NextFunction) => {
     req.session.destroy((err) => {
         if (err === undefined) {
             res.json()
@@ -162,8 +164,9 @@ router.post('/signout', restrict, (req: Request, res: Response, next: NextFuncti
         }
     })
 })
+*/
 
-router.post('/signout/jwt', restrictJWT, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/signout', restrictJWT, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userid = res.locals.username
         let lastID = +(await redis.get(`${userid}:lastID`) ?? '0')

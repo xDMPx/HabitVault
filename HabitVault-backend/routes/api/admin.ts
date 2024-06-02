@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
 
-import { adminRestrict, adminRestrictJWT } from '../../middlewares'
+import { adminRestrictJWT } from '../../middlewares'
 import { Session, TypedRequest } from '../../interfaces'
 import { redisStore } from '../../app'
 import { isValidUserName, stringToBoolean } from '../../utils'
@@ -9,7 +9,7 @@ import { isValidUserName, stringToBoolean } from '../../utils'
 const router = Router()
 const prisma = new PrismaClient()
 
-router.get('/users', adminRestrict, async (_req: Request, res: Response, next: NextFunction) => {
+router.get('/users', adminRestrictJWT, async (_req: Request, res: Response, next: NextFunction) => {
     try {
         const users = await prisma.user.findMany({
             select: {
@@ -24,22 +24,7 @@ router.get('/users', adminRestrict, async (_req: Request, res: Response, next: N
     }
 })
 
-router.get('/users/jwt', adminRestrictJWT, async (_req: Request, res: Response, next: NextFunction) => {
-    try {
-        const users = await prisma.user.findMany({
-            select: {
-                username: true,
-                admin: true
-            }
-        })
-
-        res.json(users)
-    } catch (err) {
-        next(err)
-    }
-})
-
-router.delete('/user/:username', adminRestrict, async (req: TypedRequest<any, { username: string }>, res: Response, next: NextFunction) => {
+router.delete('/user/:username', adminRestrictJWT, async (req: TypedRequest<any, { username: string }>, res: Response, next: NextFunction) => {
     try {
         const username = req.params.username
 
@@ -90,7 +75,7 @@ router.delete('/user/:username', adminRestrict, async (req: TypedRequest<any, { 
     }
 })
 
-router.patch('/user/:username/admin', adminRestrict, async (req:
+router.patch('/user/:username/admin', adminRestrictJWT, async (req:
     TypedRequest<{ admin: string | boolean | undefined }, { username: string }>, res: Response, next: NextFunction) => {
     try {
         const username = req.params.username
