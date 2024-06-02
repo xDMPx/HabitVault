@@ -139,8 +139,8 @@ watch(() => getMonthOffset(), (newOffset, _oldOffset) => {
 
 function monthStartDate(): Date {
     const monthStartDate = todayDayStart()
-    monthStartDate.setMonth(monthStartDate.getMonth() + monthOffset)
     monthStartDate.setDate(1)
+    monthStartDate.setMonth(monthStartDate.getMonth() + monthOffset)
 
     return monthStartDate
 }
