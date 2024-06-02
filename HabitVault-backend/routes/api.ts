@@ -127,7 +127,7 @@ router.post('/login', async (req: TypedRequest<LoginBody>, res: Response, next: 
             if (user?.password !== undefined) {
                 const result = await argon2.verify(user?.password, password)
                 if (result) {
-                    jwt.sign({ username: username }, "testKey", (err: any, token: any) => {
+                    jwt.sign({ username: username }, "testKey", { expiresIn: '365 days' }, (err: any, token: any) => {
                         if (err === null || err === undefined) {
                             res.cookie("authToken", token, {
                                 maxAge: 31536000000,
@@ -176,7 +176,7 @@ router.post('/signout', restrictJWT, async (req: Request, res: Response, next: N
 
         lastID += 1
         await redis.set(`${userid}:lastID`, lastID)
-        await redis.set(`${userid}:${lastID}`, req.cookies.authToken)
+        await redis.set(`${userid}:${lastID}`, req.cookies.authToken, "EX", 31536000)
 
         res.clearCookie('authToken').json()
     } catch (err) {
