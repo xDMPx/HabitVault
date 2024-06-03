@@ -173,9 +173,14 @@ router.post('/signout', restrictJWT, async (req: Request, res: Response, next: N
         if (isNaN(lastID)) {
             lastID = 0
         }
+        let firstID = +(await redis.get(`${userid}:firstID`) ?? '0')
+        if (isNaN(firstID)) {
+            firstID = 0
+        }
 
         lastID += 1
         await redis.set(`${userid}:lastID`, lastID)
+        await redis.set(`${userid}:firstID`, firstID)
         await redis.set(`${userid}:${lastID}`, req.cookies.authToken, "EX", 31536000)
 
         res.clearCookie('authToken').json()

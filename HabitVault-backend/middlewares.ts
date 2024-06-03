@@ -141,15 +141,21 @@ function decodeJWT(token: string): string | null {
 
 async function isValidToken(token: string, username: string): Promise<boolean> {
     const lastID = +(await redis.get(`${username}:lastID`) ?? 'NaN')
+    let firstID = +(await redis.get(`${username}:firstID`) ?? '0')
     let validToken = true
     if (!isNaN(lastID)) {
-        for (let i = 0; i <= lastID; i++) {
+        for (let i = firstID; i <= lastID; i++) {
             const blacklistedToken = await redis.get(`${username}:${i}`)
+            if (blacklistedToken === null) {
+                firstID = i
+            }
             if (blacklistedToken === token) {
                 validToken = false
                 break
             }
         }
+
+        await redis.set(`${username}:firstID`, firstID)
     }
     return validToken
 }
