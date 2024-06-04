@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import { PrismaClient } from '@prisma/client'
 import * as jwt from "jsonwebtoken"
-import { redis } from './app'
+import { jwtSecret, redis } from './app'
 
 const prisma = new PrismaClient()
 
@@ -130,7 +130,7 @@ function getJWT(req: Request): string | null {
 }
 
 function decodeJWT(token: string): string | null {
-    const decoded = jwt.verify(token, "testKey")
+    const decoded = jwt.verify(token, jwtSecret)
     if (typeof (decoded) !== 'object') {
         return null
     }

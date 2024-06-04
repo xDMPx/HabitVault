@@ -6,7 +6,7 @@ import * as jwt from "jsonwebtoken"
 import { restrictJWT, adminRestrictJWT } from '../middlewares'
 import { TypedRequest, RegisterBody, LoginBody } from '../interfaces'
 import { isValidUserName } from '../utils'
-import { redis } from '../app'
+import { jwtSecret, redis } from '../app'
 
 const router = Router()
 const prisma = new PrismaClient()
@@ -127,7 +127,7 @@ router.post('/login', async (req: TypedRequest<LoginBody>, res: Response, next: 
             if (user?.password !== undefined) {
                 const result = await argon2.verify(user?.password, password)
                 if (result) {
-                    jwt.sign({ username: username }, "testKey", { expiresIn: '365 days' }, (err: any, token: any) => {
+                    jwt.sign({ username: username }, jwtSecret, { expiresIn: '365 days' }, (err: any, token: any) => {
                         if (err === null || err === undefined) {
                             res.cookie("authToken", token, {
                                 maxAge: 31536000000,

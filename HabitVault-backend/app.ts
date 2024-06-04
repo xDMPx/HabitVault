@@ -9,6 +9,10 @@ import dotenv from "dotenv"
 import { log } from './middlewares'
 
 dotenv.config()
+export const jwtSecret = process.env.JWT_SECRET ?? ""
+if (jwtSecret === "") {
+    throw "Define JWT_SECRET in .env"
+}
 
 export const redis = new Redis()
 export const redisStore = new RedisStore({
