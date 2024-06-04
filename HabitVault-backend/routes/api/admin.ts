@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client'
 
 import { adminRestrictJWT } from '../../middlewares'
 import { Session, TypedRequest } from '../../interfaces'
-import { redisStore } from '../../app'
+import { redis, redisStore } from '../../app'
 import { isValidUserName, stringToBoolean } from '../../utils'
 
 const router = Router()
@@ -62,6 +62,7 @@ router.delete('/user/:username', adminRestrictJWT, async (req: TypedRequest<any,
                     }
                 }
             )
+            redis.set(`banned:${username}`, 1)
 
             const user = await prisma.user.delete({
                 where: { username: username },

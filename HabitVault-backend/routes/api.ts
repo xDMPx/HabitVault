@@ -53,6 +53,11 @@ router.post('/register', async (req: TypedRequest<RegisterBody>, res: Response, 
                 error: "Invalid Username"
             })
             return
+        } else if (await redis.get(`banned:${username}`) === "1") {
+            res.status(400).json({
+                error: "Banned Username"
+            })
+            return
         }
 
         const passhash = await argon2.hash(password)
