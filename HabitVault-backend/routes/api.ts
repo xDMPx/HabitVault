@@ -119,6 +119,11 @@ router.post('/login', async (req: TypedRequest<LoginBody>, res: Response, next: 
     try {
         const username = req.body.username
         const password = req.body.password
+        const banned = (await redis.get(`banned:${username}`) === "1")
+        if (banned) {
+            res.status(401).json({ error: "Account have been baned" })
+            return
+        }
         if (username !== undefined && isValidUserName(username) && password !== undefined) {
             const user = await prisma.user.findFirst({
                 where: {
