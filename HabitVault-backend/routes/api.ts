@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client'
 import * as argon2 from "argon2"
 import * as jwt from "jsonwebtoken"
 
-import { restrictJWT, adminRestrictJWT } from '../middlewares'
+import { restrict, adminRestrict } from '../middlewares'
 import { TypedRequest, RegisterBody, LoginBody } from '../interfaces'
 import { isValidUserName } from '../utils'
 import { jwtSecret, redis } from '../app'
@@ -12,11 +12,11 @@ const router = Router()
 const prisma = new PrismaClient()
 
 
-router.get('/authorized', restrictJWT, async (_req: Request, res: Response) => {
+router.get('/authorized', restrict, async (_req: Request, res: Response) => {
     res.json()
 })
 
-router.get('/adminAuthorized', adminRestrictJWT, async (_req: Request, res: Response) => {
+router.get('/adminAuthorized', adminRestrict, async (_req: Request, res: Response) => {
     res.json()
 })
 
@@ -160,7 +160,7 @@ router.post('/login', async (req: TypedRequest<LoginBody>, res: Response, next: 
 })
 
 /*
-router.post('/signout', restrictJWT, (req: Request, res: Response, next: NextFunction) => {
+router.post('/signout', restrict, (req: Request, res: Response, next: NextFunction) => {
     req.session.destroy((err) => {
         if (err === undefined) {
             res.json()
@@ -171,7 +171,7 @@ router.post('/signout', restrictJWT, (req: Request, res: Response, next: NextFun
 })
 */
 
-router.post('/signout', restrictJWT, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/signout', restrict, async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userid = res.locals.username
         let lastID = +(await redis.get(`${userid}:lastID`) ?? '0')

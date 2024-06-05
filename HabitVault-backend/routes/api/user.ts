@@ -1,13 +1,13 @@
 import { Router, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
 
-import { restrictJWT } from '../../middlewares'
+import { restrict } from '../../middlewares'
 import { TypedRequest } from '../../interfaces'
 
 const router = Router()
 const prisma = new PrismaClient()
 
-router.get('/records', restrictJWT, async (req: TypedRequest<any, any, { from: string, to: string }>, res: Response, next: NextFunction) => {
+router.get('/records', restrict, async (req: TypedRequest<any, any, { from: string, to: string }>, res: Response, next: NextFunction) => {
     try {
         const from = new Date(req.query.from)
         const to = new Date(req.query.to)

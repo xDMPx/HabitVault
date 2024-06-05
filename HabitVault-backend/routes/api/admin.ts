@@ -1,15 +1,15 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
 
-import { adminRestrictJWT } from '../../middlewares'
-import { Session, TypedRequest } from '../../interfaces'
-import { redis, redisStore } from '../../app'
+import { adminRestrict } from '../../middlewares'
+import { TypedRequest } from '../../interfaces'
+import { redis } from '../../app'
 import { isValidUserName, stringToBoolean } from '../../utils'
 
 const router = Router()
 const prisma = new PrismaClient()
 
-router.get('/users', adminRestrictJWT, async (_req: Request, res: Response, next: NextFunction) => {
+router.get('/users', adminRestrict, async (_req: Request, res: Response, next: NextFunction) => {
     try {
         const users = await prisma.user.findMany({
             select: {
@@ -24,7 +24,7 @@ router.get('/users', adminRestrictJWT, async (_req: Request, res: Response, next
     }
 })
 
-router.delete('/user/:username', adminRestrictJWT, async (req: TypedRequest<any, { username: string }>, res: Response, next: NextFunction) => {
+router.delete('/user/:username', adminRestrict, async (req: TypedRequest<any, { username: string }>, res: Response, next: NextFunction) => {
     try {
         const username = req.params.username
 
@@ -51,18 +51,7 @@ router.delete('/user/:username', adminRestrictJWT, async (req: TypedRequest<any,
         }
 
         if (username !== undefined) {
-            await redisStore.all(
-                (err: unknown, data: Session[]) => {
-                    if (err === undefined || err === null) {
-                        data.filter((session) => session.username === username)
-                            .forEach((session) => redisStore.destroy(session.id))
-
-                    } else {
-                        next(err)
-                    }
-                }
-            )
-            redis.set(`banned:${username}`, 1)
+            await redis.set(`banned:${username}`, 1)
 
             const user = await prisma.user.delete({
                 where: { username: username },
@@ -76,7 +65,7 @@ router.delete('/user/:username', adminRestrictJWT, async (req: TypedRequest<any,
     }
 })
 
-router.patch('/user/:username/admin', adminRestrictJWT, async (req:
+router.patch('/user/:username/admin', adminRestrict, async (req:
     TypedRequest<{ admin: string | boolean | undefined }, { username: string }>, res: Response, next: NextFunction) => {
     try {
         const username = req.params.username

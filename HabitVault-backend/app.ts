@@ -1,7 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express'
 import cookieParser from 'cookie-parser'
-import session from 'express-session'
-import RedisStore from "connect-redis"
 import Redis from "ioredis"
 import cors from 'cors'
 import dotenv from "dotenv"
@@ -15,25 +13,9 @@ if (jwtSecret === "") {
 }
 
 export const redis = new Redis()
-export const redisStore = new RedisStore({
-    client: redis,
-})
 const app = express()
 app.use(express.json())
 app.use(cookieParser())
-app.use(session({
-    store: redisStore,
-    resave: false, // required: force lightweight session keep alive (touch)
-    saveUninitialized: false, // recommended: only save session when data exists
-    secret: 'testSecret',
-    name: "session",
-    cookie: {
-        maxAge: 31536000000,
-        secure: false,
-        sameSite: 'lax'
-    }
-}))
-
 app.use(cors({
     origin: 'http://localhost:5173',
     credentials: true,
