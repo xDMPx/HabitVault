@@ -17,6 +17,13 @@
                     <input type="password" placeholder="password" v-model="formData.password"
                         class="input input-bordered" required />
                 </div>
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text">Confirm Password</span>
+                    </label>
+                    <input type="password" placeholder="password" v-model="formData.password2"
+                        class="input input-bordered" required />
+                </div>
                 <div class="form-control mt-6">
                     <button class="btn btn-primary">Register</button>
                 </div>
@@ -34,32 +41,47 @@ export default {
         return {
             formData: {
                 username: '',
-                password: ''
+                password: '',
+                password2: ''
             }
         }
     },
     methods: {
         handleAccountCreation() {
-            axios.post('/register', this.formData)
-                .then((response) => {
-                    this.formData = {
-                        username: '',
-                        password: ''
-                    }
-                    this.$router.push('/login')
+            if (!isValidUserName(this.formData.username)) {
+                alert("Invalid username")
+            } else if (this.formData.password !== this.formData.password2) {
+                alert("The password confirmation does not match")
+            }
+            else {
+                axios.post('/register', this.formData)
+                    .then((response) => {
+                        this.formData = {
+                            username: '',
+                            password: '',
+                            password2: ''
+                        }
+                        this.$router.push('/login')
 
-                    console.log(response)
+                        console.log(response)
 
-                })
-                .catch((error) => {
-                    alert("Account registration failed")
-                    this.formData = {
-                        username: '',
-                        password: ''
-                    }
-                    console.error(error)
-                })
+                    })
+                    .catch((error) => {
+                        alert("Account registration failed")
+                        this.formData = {
+                            username: '',
+                            password: '',
+                            password2: ''
+                        }
+                        console.error(error)
+                    })
+            }
         }
     }
+}
+
+export function isValidUserName(username: string): Boolean {
+    const usernameRegex = /^[a-zA-Z][a-zA-Z0-9._-]{3,29}$/
+    return usernameRegex.test(username)
 }
 </script>
