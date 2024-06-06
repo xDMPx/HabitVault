@@ -64,7 +64,7 @@ interface User {
 
 <template>
 
-    <div class="drawer h-dvh lg:drawer-open">
+    <div class="drawer min-h-dvh lg:drawer-open">
         <input id="side-menu-drawer" type="checkbox" class="drawer-toggle" />
 
         <div class="drawer-side z-40">

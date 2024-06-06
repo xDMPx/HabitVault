@@ -30,7 +30,7 @@ function updateHabits() {
 
 <template>
 
-    <div class="drawer h-dvh lg:drawer-open">
+    <div class="drawer lg:drawer-open min-h-dvh ">
         <input id="side-menu-drawer" type="checkbox" class="drawer-toggle" @click="updateHabits" />
 
         <div class="drawer-side z-40">
