@@ -23,16 +23,38 @@ const formData = ref({
     name: props.habit?.name ?? "",
     description: props.habit?.description ?? ""
 })
+const showAlert = ref(false)
+const alertText = ref("")
 
 function handleFormSubmit() {
+    if (!isValidHabitName(formData.value.name)) {
+        showAlert.value = true
+        alertText.value = "Invalid habit name"
+        return
+    }
+
     emit('formSubmitted', formData.value.name, formData.value.description)
     formData.value.name = ""
     formData.value.description = ""
+    showAlert.value = false
+}
+
+function isValidHabitName(username: string): Boolean {
+    const usernameRegex = /^[A-Z][a-zA-Z0-9.,|/\_-]{2,19}$/
+    return usernameRegex.test(username)
 }
 </script>
 
 <template>
 
+    <div role="alert" class="alert alert-error" v-if="showAlert">
+        <span>{{ alertText }}</span>
+        <button class="flex ml-auto">
+            <span class="grow material-symbols-outlined" @click="showAlert = false">
+                close
+            </span>
+        </button>
+    </div>
     <form @submit.prevent="handleFormSubmit">
         <div class="form-control">
             <label class="label">
