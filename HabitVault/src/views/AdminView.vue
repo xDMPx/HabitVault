@@ -4,6 +4,9 @@ import axios, { AxiosError } from 'axios'
 import { ref, type Ref } from 'vue'
 import { useRouter } from 'vue-router';
 
+const alertText = ref("")
+const showAlert = ref(false)
+
 const router = useRouter()
 const users: Ref<User[]> = ref([])
 fetchUsers()
@@ -30,11 +33,32 @@ function deleteUser(username: string) {
         .then(() => { fetchUsers() })
         .catch((err: AxiosError) => {
             const data = err.response?.data as { error: string }
-            alert(`${err.message}\n${data.error}`)
-            router.go(0)
+
+            alertText.value = `${err.message}\n${data.error}`
+            showAlert.value = true
         })
     const deleteUserModal = document.getElementById("delete_user_modal") as HTMLDialogElement | null
     deleteUserModal?.close()
+}
+
+const userToBan = ref("")
+function handleBanUser(username: string) {
+    userToBan.value = username
+    const banUserModal = document.getElementById("ban_user_modal") as HTMLDialogElement | null
+    banUserModal?.show()
+}
+
+function banUser(username: string) {
+    axios.post(`admin/user/${username}/ban`)
+        .then(() => { fetchUsers() })
+        .catch((err: AxiosError) => {
+            const data = err.response?.data as { error: string }
+
+            alertText.value = `${err.message}\n${data.error}`
+            showAlert.value = true
+        })
+    const banUserModal = document.getElementById("ban_user_modal") as HTMLDialogElement | null
+    banUserModal?.close()
 }
 
 function fetchUsers() {
@@ -50,7 +74,9 @@ function patchUser(username: string, admin: boolean) {
         .catch((err: AxiosError) => {
             const data = err.response?.data as { error: string }
             alert(`${err.message}\n${data.error}`)
-            router.go(0)
+
+            alertText.value = `${err.message}\n${data.error}`
+            showAlert.value = true
         })
 }
 
@@ -58,6 +84,7 @@ interface User {
     username: string,
     password: string,
     admin: boolean,
+    banned: boolean
 }
 
 </script>
@@ -90,12 +117,23 @@ interface User {
             </div>
         </div>
 
+
         <div class="drawer-content p-4 flex flex-col">
+
             <label for="side-menu-drawer" class="btn btn-ghost drawer-button lg:hidden justify-start">
                 <span class="material-symbols-outlined">
                     menu
                 </span>
             </label>
+            <div role="alert" class="alert alert-error" v-if="showAlert">
+                <span>{{ alertText }}</span>
+                <button class="flex ml-auto">
+                    <span class="grow material-symbols-outlined" @click="showAlert = false">
+                        close
+                    </span>
+                </button>
+            </div>
+
             <div class="grow">
                 <div class="overflow-x-auto">
                     <table class="table">
@@ -103,6 +141,8 @@ interface User {
                             <tr class="text-center">
                                 <th>Username</th>
                                 <th>Admin</th>
+                                <th>Banned</th>
+                                <th>Ban</th>
                                 <th>Delete</th>
                             </tr>
                         </thead>
@@ -112,6 +152,16 @@ interface User {
                                 <td class="text-center">
                                     <input type="checkbox" :checked="user.admin" class="checkbox"
                                         @click="patchUser(user.username, !user.admin)" />
+                                </td>
+                                <td class="text-center">
+                                    <input type="checkbox" :checked="user.banned" class="checkbox " disabled />
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-ghost" @click="handleBanUser(user.username)">
+                                        <span class="material-symbols-outlined">
+                                            gavel
+                                        </span>
+                                    </button>
                                 </td>
                                 <td class="text-center">
                                     <button class="btn btn-ghost" @click="handleDeleteUser(user.username)">
@@ -150,5 +200,27 @@ interface User {
             <button>close</button>
         </form>
     </dialog>
+
+    <dialog id="ban_user_modal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg text-center">
+                Are you sure you want to ban this user?
+            </h3>
+            <form @submit.prevent="banUser(userToBan)">
+                <div class="flex justify-center p-4 gap-4">
+                    <div class="form-control">
+                        <button class="btn btn-primary">Yes</button>
+                    </div>
+                    <form method="dialog">
+                        <button class="btn btn-neutral">No</button>
+                    </form>
+                </div>
+            </form>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
 
 </template>

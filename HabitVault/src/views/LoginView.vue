@@ -80,6 +80,9 @@ export default {
                     }
                     this.showAlert = true
                     this.alertText = "Incorrect username or password."
+                    if (error.response.status === 401) {
+                        this.alertText = "Account banned"
+                    }
                     console.error(error)
                 })
         }
