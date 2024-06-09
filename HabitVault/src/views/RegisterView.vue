@@ -1,6 +1,14 @@
 <template>
     <div class="hero-content grid mx-auto">
         <h1 class="text-5xl font-bold">Create Account</h1>
+        <div role="alert" class="alert flex alert-error" v-if="showAlert">
+            <p class="grow"> {{ alertText }} </p>
+            <button class="flex">
+                <span class="grow material-symbols-outlined" @click="showAlert = false">
+                    close
+                </span>
+            </button>
+        </div>
         <div class="card shrink-0 w-max-w-sm shadow-2xl bg-base-100">
             <form @submit.prevent="handleAccountCreation" class="card-body">
                 <div class="form-control">
@@ -43,15 +51,19 @@ export default {
                 username: '',
                 password: '',
                 password2: ''
-            }
+            },
+            showAlert: false,
+            alertText: ''
         }
     },
     methods: {
         handleAccountCreation() {
             if (!isValidUserName(this.formData.username)) {
-                alert("Invalid username")
+                this.showAlert = true
+                this.alertText = "Invalid Username"
             } else if (this.formData.password !== this.formData.password2) {
-                alert("The password confirmation does not match")
+                this.showAlert = true
+                this.alertText = "The password confirmation does not match"
             }
             else {
                 axios.post('/register', this.formData)
@@ -67,7 +79,8 @@ export default {
 
                     })
                     .catch((error) => {
-                        alert("Account registration failed")
+                        this.showAlert = true
+                        this.alertText = error
                         this.formData = {
                             username: '',
                             password: '',
