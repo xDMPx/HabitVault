@@ -114,6 +114,42 @@ router.post('/user/:username/ban', adminRestrict, async (req: TypedRequest<any, 
     }
 })
 
+router.post('/user/:username/unban', adminRestrict, async (req: TypedRequest<any, { username: string }>, res: Response, next: NextFunction) => {
+    try {
+        const username = req.params.username
+
+        if (!isValidUserName(username)) {
+            res.status(400).json({
+                error: "Invalid Username"
+            })
+            return
+        }
+
+        const user = await prisma.user.findFirst({
+            where: { username: username },
+        })
+        if (user !== null) {
+            if (username !== undefined) {
+                const banned = await redis.get(`banned:${username}`) === '1'
+                if (!banned) {
+                    res.status(400).json({
+                        error: "User is not currently banned. Unable to unban user"
+                    })
+                } else {
+                    await redis.del(`banned:${username}`)
+                    res.json()
+                }
+            } else {
+                res.status(400).json({
+                    error: "Invalid Username"
+                })
+            }
+        }
+    } catch (err) {
+        next(err)
+    }
+})
+
 router.patch('/user/:username/admin', adminRestrict, async (req:
     TypedRequest<{ admin: string | boolean | undefined }, { username: string }>, res: Response, next: NextFunction) => {
     try {
