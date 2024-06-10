@@ -61,6 +61,25 @@ function banUser(username: string) {
     banUserModal?.close()
 }
 
+function handleUnBanUser(username: string) {
+    userToBan.value = username
+    const unbanUserModal = document.getElementById("unban_user_modal") as HTMLDialogElement | null
+    unbanUserModal?.show()
+}
+
+function unbanUser(username: string) {
+    axios.post(`admin/user/${username}/unban`)
+        .then(() => { fetchUsers() })
+        .catch((err: AxiosError) => {
+            const data = err.response?.data as { error: string }
+
+            alertText.value = `${err.message}\n${data.error}`
+            showAlert.value = true
+        })
+    const unbanUserModal = document.getElementById("unban_user_modal") as HTMLDialogElement | null
+    unbanUserModal?.close()
+}
+
 function fetchUsers() {
     axios.get<User[] | undefined>('admin/users').then((response) => {
         if (response.data !== undefined)
@@ -153,10 +172,21 @@ interface User {
                                     <input type="checkbox" :checked="user.admin" class="checkbox"
                                         @click="patchUser(user.username, !user.admin)" />
                                 </td>
-                                <td class="text-center">
-                                    <input type="checkbox" :checked="user.banned" class="checkbox " disabled />
+                                <td class="text-center" v-if="user.banned">
+                                    <input type="checkbox" :checked="user.banned" class="checkbox"
+                                        @click="handleUnBanUser(user.username)" />
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center" v-else>
+                                    <input type="checkbox" :checked="user.banned" class="checkbox" disabled />
+                                </td>
+                                <td class="text-center" v-if="user.banned">
+                                    <button class="btn btn-ghost" disabled>
+                                        <span class="material-symbols-outlined">
+                                            gavel
+                                        </span>
+                                    </button>
+                                </td>
+                                <td class="text-center" v-else>
                                     <button class="btn btn-ghost" @click="handleBanUser(user.username)">
                                         <span class="material-symbols-outlined">
                                             gavel
@@ -222,5 +252,25 @@ interface User {
         </form>
     </dialog>
 
+    <dialog id="unban_user_modal" class="modal">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg text-center">
+                Are you sure you want to ban this user?
+            </h3>
+            <form @submit.prevent="unbanUser(userToBan)">
+                <div class="flex justify-center p-4 gap-4">
+                    <div class="form-control">
+                        <button class="btn btn-primary">Yes</button>
+                    </div>
+                    <form method="dialog">
+                        <button class="btn btn-neutral">No</button>
+                    </form>
+                </div>
+            </form>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
 
 </template>
