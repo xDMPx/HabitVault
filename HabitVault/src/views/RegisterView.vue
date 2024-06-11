@@ -2,7 +2,11 @@
     <div class="hero-content grid mx-auto">
         <h1 class="text-5xl font-bold">Create Account</h1>
         <div role="alert" class="alert flex alert-error" v-if="showAlert">
-            <p class="grow"> {{ alertText }} </p>
+            <div class="grow">
+                <p v-for="alert in alertText">
+                    {{ alert }}
+                </p>
+            </div>
             <button class="flex">
                 <span class="grow material-symbols-outlined" @click="showAlert = false">
                     close
@@ -53,17 +57,26 @@ export default {
                 password2: ''
             },
             showAlert: false,
-            alertText: ''
+            alertText: ['']
         }
     },
     methods: {
         handleAccountCreation() {
             if (!isValidUserName(this.formData.username)) {
                 this.showAlert = true
-                this.alertText = "Invalid Username"
+                this.alertText = ["Invalid Username"]
+            }
+            else if (!isValidPassword(this.formData.password)) {
+                this.showAlert = true
+                this.alertText = ["Invalid Password",
+                    "Length between 8 to 20 characters.",
+                    "At least one uppercase letter",
+                    "At least one lowercase letter",
+                    "At least one digit",
+                    "At least one special character: @,$,!,%,*,?,&"]
             } else if (this.formData.password !== this.formData.password2) {
                 this.showAlert = true
-                this.alertText = "The password confirmation does not match"
+                this.alertText = ["The password confirmation does not match"]
             }
             else {
                 axios.post('/register', this.formData)
@@ -96,5 +109,10 @@ export default {
 export function isValidUserName(username: string): Boolean {
     const usernameRegex = /^[a-zA-Z][a-zA-Z0-9._-]{3,29}$/
     return usernameRegex.test(username)
+}
+
+export function isValidPassword(password: string): Boolean {
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
+    return passwordRegex.test(password)
 }
 </script>

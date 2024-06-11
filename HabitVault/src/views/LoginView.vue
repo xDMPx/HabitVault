@@ -56,7 +56,7 @@ export default {
     },
     methods: {
         handleLogin() {
-            if (!isValidUserName(this.formData.username)) {
+            if (!isValidUserName(this.formData.username) || !isValidPassword(this.formData.password)) {
                 this.showAlert = true
                 this.alertText = "Incorrect username or password."
                 return
@@ -92,5 +92,10 @@ export default {
 export function isValidUserName(username: string): Boolean {
     const usernameRegex = /^[a-zA-Z][a-zA-Z0-9._-]{3,29}$/
     return usernameRegex.test(username)
+}
+
+export function isValidPassword(password: string): Boolean {
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
+    return passwordRegex.test(password)
 }
 </script>
