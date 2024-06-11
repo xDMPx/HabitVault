@@ -255,7 +255,7 @@ interface User {
     <dialog id="unban_user_modal" class="modal">
         <div class="modal-box">
             <h3 class="font-bold text-lg text-center">
-                Are you sure you want to ban this user?
+                Are you sure you want to unban this user?
             </h3>
             <form @submit.prevent="unbanUser(userToBan)">
                 <div class="flex justify-center p-4 gap-4">

@@ -5,7 +5,7 @@ import * as jwt from "jsonwebtoken"
 
 import { restrict, adminRestrict } from '../middlewares'
 import { TypedRequest, RegisterBody, LoginBody } from '../interfaces'
-import { isValidUserName } from '../utils'
+import { isValidPassword, isValidUserName } from '../utils'
 import { jwtSecret, redis } from '../app'
 
 const router = Router()
@@ -53,13 +53,19 @@ router.post('/register', async (req: TypedRequest<RegisterBody>, res: Response, 
                 error: "Invalid Username"
             })
             return
-        } else if (await redis.get(`banned:${username}`) === "1") {
+        } else if (!isValidPassword(password)) {
+            res.status(400).json({
+                error: "Invalid Password"
+            })
+            return
+        }
+
+        else if (await redis.get(`banned:${username}`) === "1") {
             res.status(400).json({
                 error: "Banned Username"
             })
             return
         }
-
         const passhash = await argon2.hash(password)
         const user = await prisma.user.create({
             data: {
@@ -124,7 +130,7 @@ router.post('/login', async (req: TypedRequest<LoginBody>, res: Response, next: 
             res.status(401).json({ error: "Account have been baned" })
             return
         }
-        if (username !== undefined && isValidUserName(username) && password !== undefined) {
+        if (username !== undefined && isValidUserName(username) && password !== undefined && isValidPassword(password)) {
             const user = await prisma.user.findFirst({
                 where: {
                     username: username,
