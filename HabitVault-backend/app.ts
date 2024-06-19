@@ -11,13 +11,17 @@ export const jwtSecret = process.env.JWT_SECRET ?? ""
 if (jwtSecret === "") {
     throw "Define JWT_SECRET in .env"
 }
+export const crosOrigin = process.env.CROS_ORIGIN ?? ""
+if (crosOrigin === "") {
+    throw "Define CROS_ORIGIN in .env"
+}
 
 export const redis = new Redis()
 const app = express()
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-    origin: process.env.CROS_ORIGIN,
+    origin: crosOrigin,
     credentials: true,
 }))
 app.use(log)
