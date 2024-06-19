@@ -80,47 +80,6 @@ router.post('/register', async (req: TypedRequest<RegisterBody>, res: Response, 
     }
 })
 
-/*
-router.post('/login', async (req: TypedRequest<LoginBody>, res: Response, next: NextFunction) => {
-    try {
-        const username = req.body.username
-        const password = req.body.password
-        if (username !== undefined && isValidUserName(username) && password !== undefined) {
-            const user = await prisma.user.findFirst({
-                where: {
-                    username: username,
-                },
-                select: {
-                    username: true,
-                    password: true
-                }
-            })
-            if (user?.password !== undefined) {
-                const result = await argon2.verify(user?.password, password)
-                if (result) {
-                    req.session.regenerate((err) => {
-                        if (err !== undefined) {
-                            next(err)
-                        } else {
-                            req.session.username = user.username
-                            res.json()
-                        }
-                    })
-                } else {
-                    res.status(400).json()
-                }
-            } else {
-                res.status(400).json()
-            }
-        } else {
-            res.status(400).json()
-        }
-    } catch (err) {
-        next(err)
-    }
-})
-*/
-
 router.post('/login', async (req: TypedRequest<LoginBody>, res: Response, next: NextFunction) => {
     try {
         const username = req.body.username
@@ -169,18 +128,6 @@ router.post('/login', async (req: TypedRequest<LoginBody>, res: Response, next: 
         next(err)
     }
 })
-
-/*
-router.post('/signout', restrict, (req: Request, res: Response, next: NextFunction) => {
-    req.session.destroy((err) => {
-        if (err === undefined) {
-            res.json()
-        } else {
-            next(err)
-        }
-    })
-})
-*/
 
 router.post('/signout', restrict, async (req: Request, res: Response, next: NextFunction) => {
     try {
