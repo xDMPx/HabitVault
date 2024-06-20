@@ -92,7 +92,6 @@ function patchUser(username: string, admin: boolean) {
         .then(() => { fetchUsers() })
         .catch((err: AxiosError) => {
             const data = err.response?.data as { error: string }
-            alert(`${err.message}\n${data.error}`)
 
             alertText.value = `${err.message}\n${data.error}`
             showAlert.value = true

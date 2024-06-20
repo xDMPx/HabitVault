@@ -64,7 +64,10 @@ export default {
         handleAccountCreation() {
             if (!isValidUserName(this.formData.username)) {
                 this.showAlert = true
-                this.alertText = ["Invalid Username"]
+                this.alertText = ["Invalid Username",
+                    "Length between 4 to 30 characters.",
+                    "Must start with a letter.",
+                    "Can only be made up of letters, numbers, periods, underscores, and hyphens."]
             }
             else if (!isValidPassword(this.formData.password)) {
                 this.showAlert = true

@@ -11,7 +11,7 @@ export const jwtSecret = process.env.JWT_SECRET ?? ""
 if (jwtSecret === "") {
     throw "Define JWT_SECRET in .env"
 }
-export const crosOrigin = process.env.CROS_ORIGIN ?? ""
+const crosOrigin = process.env.CROS_ORIGIN ?? ""
 if (crosOrigin === "") {
     throw "Define CROS_ORIGIN in .env"
 }
