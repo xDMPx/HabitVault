@@ -4,7 +4,7 @@ import HelloWorld from '../components/HelloWorld.vue'
 </script>
 
 <template>
-    <div class="flex flex-col h-dvh p-4 bg-base-300">
+    <div class="flex flex-col min-h-dvh p-4 bg-base-300">
         <header>
             <div class="flex justify-between">
                 <div class="wrapper">

@@ -14,6 +14,11 @@ export function isValidUserName(username: string): Boolean {
     return usernameRegex.test(username)
 }
 
+export function isValidPassword(password: string): Boolean {
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
+    return passwordRegex.test(password)
+}
+
 export function isStartOfDay(date: Date) {
     return date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0 && date.getMilliseconds() === 0
 }

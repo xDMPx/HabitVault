@@ -23,14 +23,19 @@ fetchHabit(habitid)
 function fetchHabit(habitid: string | string[]) {
     getHabit(habitid,
         (res) => {
-            if (res !== undefined)
+            if (res !== undefined) {
                 habit.value = res
+                fetchHabitRecords(habitid)
+                fetchHabitStreak(habitid)
+            }
         },
         (err) => {
-            alert(err)
+            if (err.response.status === 400) {
+                router.replace('/')
+            } else {
+                alert(err)
+            }
         })
-    fetchHabitRecords(habitid)
-    fetchHabitStreak(habitid)
 }
 
 const records: Ref<HabitRecord[]> = ref([])

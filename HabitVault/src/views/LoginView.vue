@@ -4,6 +4,14 @@
 <template>
     <div class="hero-content grid px-4 my-auto mx-auto">
         <h1 class="text-5xl font-bold">Login</h1>
+        <div role="alert" class="flex alert alert-error" v-if="showAlert">
+            <span class="grow">{{ alertText }}</span>
+            <button class="flex">
+                <span class="grow material-symbols-outlined" @click="showAlert = false">
+                    close
+                </span>
+            </button>
+        </div>
         <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
             <form @submit.prevent="handleLogin" class="card-body">
                 <div class="form-control">
@@ -41,12 +49,18 @@ export default {
             formData: {
                 username: '',
                 password: ''
-            }
+            },
+            showAlert: false,
+            alertText: ''
         }
     },
     methods: {
         handleLogin() {
-
+            if (!isValidUserName(this.formData.username) || !isValidPassword(this.formData.password)) {
+                this.showAlert = true
+                this.alertText = "Incorrect username or password."
+                return
+            }
             console.log(this.formData)
             axios.post('/login', this.formData)
                 .then((response) => {
@@ -60,14 +74,28 @@ export default {
                     this.$router.push('/')
                 })
                 .catch((error) => {
-                    alert("Login failed")
                     this.formData = {
                         username: '',
                         password: ''
+                    }
+                    this.showAlert = true
+                    this.alertText = "Incorrect username or password."
+                    if (error.response.status === 401) {
+                        this.alertText = "Account banned"
                     }
                     console.error(error)
                 })
         }
     }
+}
+
+export function isValidUserName(username: string): Boolean {
+    const usernameRegex = /^[a-zA-Z][a-zA-Z0-9._-]{3,29}$/
+    return usernameRegex.test(username)
+}
+
+export function isValidPassword(password: string): Boolean {
+    const passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
+    return passwordRegex.test(password)
 }
 </script>

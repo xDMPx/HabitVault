@@ -1,6 +1,5 @@
 import express, { NextFunction, Request, Response } from 'express'
-import session from 'express-session'
-import RedisStore from "connect-redis"
+import cookieParser from 'cookie-parser'
 import Redis from "ioredis"
 import cors from 'cors'
 import dotenv from "dotenv"
@@ -8,28 +7,21 @@ import dotenv from "dotenv"
 import { log } from './middlewares'
 
 dotenv.config()
+export const jwtSecret = process.env.JWT_SECRET ?? ""
+if (jwtSecret === "") {
+    throw "Define JWT_SECRET in .env"
+}
+const crosOrigin = process.env.CROS_ORIGIN ?? ""
+if (crosOrigin === "") {
+    throw "Define CROS_ORIGIN in .env"
+}
 
-const redis = new Redis()
-export const redisStore = new RedisStore({
-    client: redis,
-})
+export const redis = new Redis()
 const app = express()
 app.use(express.json())
-app.use(session({
-    store: redisStore,
-    resave: false, // required: force lightweight session keep alive (touch)
-    saveUninitialized: false, // recommended: only save session when data exists
-    secret: 'testSecret',
-    name: "session",
-    cookie: {
-        maxAge: 31536000000,
-        secure: false,
-        sameSite: 'lax'
-    }
-}))
-
+app.use(cookieParser())
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: crosOrigin,
     credentials: true,
 }))
 app.use(log)

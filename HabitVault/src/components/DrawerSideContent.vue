@@ -22,10 +22,15 @@ watch(() => props.habits, (newHabits, _oldHabits) => {
     requestToAddHabit()
 })
 
+const alertText = ref("")
 function handleAddHabit(name: string, description: string) {
     postHabit({ name: name, description: description }, (_res) => {
         emit('updateHabits')
-    }, (err) => { alert(err) })
+    }, (err) => {
+        alertText.value = `${err.response.data.error}\n`
+        const modal = document.getElementById("error_habit_modal") as HTMLDialogElement | null
+        modal?.showModal()
+    })
     const modal = document.getElementById("add_habit_modal") as HTMLDialogElement | null
     modal?.close()
 }
@@ -67,6 +72,20 @@ requestToAddHabit()
         <div class="modal-box">
             <h3 class="font-bold text-lg">Add habit</h3>
             <HabitForm @form-submitted="handleAddHabit" />
+        </div>
+        <form method="dialog" class="modal-backdrop">
+            <button>close</button>
+        </form>
+    </dialog>
+
+    <dialog id="error_habit_modal" class="modal transition-none">
+        <div class="modal-box">
+            <h3 class="font-bold text-lg">Error</h3>
+            <div role="alert" class="alert flex alert-error">
+                <div class="grow">
+                    <p> {{ alertText }} </p>
+                </div>
+            </div>
         </div>
         <form method="dialog" class="modal-backdrop">
             <button>close</button>

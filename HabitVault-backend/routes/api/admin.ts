@@ -2,8 +2,8 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
 
 import { adminRestrict } from '../../middlewares'
-import { Session, TypedRequest } from '../../interfaces'
-import { redisStore } from '../../app'
+import { TypedRequest } from '../../interfaces'
+import { redis } from '../../app'
 import { isValidUserName, stringToBoolean } from '../../utils'
 
 const router = Router()
@@ -18,7 +18,16 @@ router.get('/users', adminRestrict, async (_req: Request, res: Response, next: N
             }
         })
 
-        res.json(users)
+        const users2: { username: string, admin: boolean, banned: boolean }[] = []
+        for (const user of users) {
+            users2.push({
+                username: user.username,
+                admin: user.admin,
+                banned: (await redis.get(`banned:${user.username}`) === "1")
+            })
+        }
+
+        res.json(users2)
     } catch (err) {
         next(err)
     }
@@ -51,17 +60,7 @@ router.delete('/user/:username', adminRestrict, async (req: TypedRequest<any, { 
         }
 
         if (username !== undefined) {
-            await redisStore.all(
-                (err: unknown, data: Session[]) => {
-                    if (err === undefined || err === null) {
-                        data.filter((session) => session.username === username)
-                            .forEach((session) => redisStore.destroy(session.id))
-
-                    } else {
-                        next(err)
-                    }
-                }
-            )
+            await redis.set(`banned:${username}`, 1)
 
             const user = await prisma.user.delete({
                 where: { username: username },
@@ -69,6 +68,82 @@ router.delete('/user/:username', adminRestrict, async (req: TypedRequest<any, { 
             res.json(user)
         } else {
             res.status(400).json()
+        }
+    } catch (err) {
+        next(err)
+    }
+})
+
+router.post('/user/:username/ban', adminRestrict, async (req: TypedRequest<any, { username: string }>, res: Response, next: NextFunction) => {
+    try {
+        const username = req.params.username
+
+        if (!isValidUserName(username)) {
+            res.status(400).json({
+                error: "Invalid Username"
+            })
+            return
+        }
+        const admin = await prisma.user.count({
+            where: { admin: true, username: username }
+        }) !== 0
+        const admin_count = await prisma.user.count({
+            where: { admin: true }
+        })
+        if (admin_count - 1 <= 0 && admin === true) {
+            res.status(400).json({
+                error: "At least one admin account must exist. Cannot ban last admin."
+            })
+            return
+        }
+
+        const user = await prisma.user.findFirst({
+            where: { username: username },
+        })
+        if (user !== null) {
+            if (username !== undefined) {
+                await redis.set(`banned:${username}`, 1)
+
+                res.json(user)
+            } else {
+                res.status(400).json()
+            }
+        }
+    } catch (err) {
+        next(err)
+    }
+})
+
+router.post('/user/:username/unban', adminRestrict, async (req: TypedRequest<any, { username: string }>, res: Response, next: NextFunction) => {
+    try {
+        const username = req.params.username
+
+        if (!isValidUserName(username)) {
+            res.status(400).json({
+                error: "Invalid Username"
+            })
+            return
+        }
+
+        const user = await prisma.user.findFirst({
+            where: { username: username },
+        })
+        if (user !== null) {
+            if (username !== undefined) {
+                const banned = await redis.get(`banned:${username}`) === '1'
+                if (!banned) {
+                    res.status(400).json({
+                        error: "User is not currently banned. Unable to unban user"
+                    })
+                } else {
+                    await redis.del(`banned:${username}`)
+                    res.json()
+                }
+            } else {
+                res.status(400).json({
+                    error: "Invalid Username"
+                })
+            }
         }
     } catch (err) {
         next(err)

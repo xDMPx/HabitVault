@@ -1,10 +1,12 @@
 import { Router, Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
 import * as argon2 from "argon2"
+import * as jwt from "jsonwebtoken"
 
 import { restrict, adminRestrict } from '../middlewares'
 import { TypedRequest, RegisterBody, LoginBody } from '../interfaces'
-import { isValidUserName } from '../utils'
+import { isValidPassword, isValidUserName } from '../utils'
+import { jwtSecret, redis } from '../app'
 
 const router = Router()
 const prisma = new PrismaClient()
@@ -51,8 +53,19 @@ router.post('/register', async (req: TypedRequest<RegisterBody>, res: Response, 
                 error: "Invalid Username"
             })
             return
+        } else if (!isValidPassword(password)) {
+            res.status(400).json({
+                error: "Invalid Password"
+            })
+            return
         }
 
+        else if (await redis.get(`banned:${username}`) === "1") {
+            res.status(400).json({
+                error: "Banned Username"
+            })
+            return
+        }
         const passhash = await argon2.hash(password)
         const user = await prisma.user.create({
             data: {
@@ -67,12 +80,16 @@ router.post('/register', async (req: TypedRequest<RegisterBody>, res: Response, 
     }
 })
 
-
 router.post('/login', async (req: TypedRequest<LoginBody>, res: Response, next: NextFunction) => {
     try {
         const username = req.body.username
         const password = req.body.password
-        if (username !== undefined && isValidUserName(username) && password !== undefined) {
+        const banned = (await redis.get(`banned:${username}`) === "1")
+        if (banned) {
+            res.status(401).json({ error: "Account have been baned" })
+            return
+        }
+        if (username !== undefined && isValidUserName(username) && password !== undefined && isValidPassword(password)) {
             const user = await prisma.user.findFirst({
                 where: {
                     username: username,
@@ -85,12 +102,17 @@ router.post('/login', async (req: TypedRequest<LoginBody>, res: Response, next: 
             if (user?.password !== undefined) {
                 const result = await argon2.verify(user?.password, password)
                 if (result) {
-                    req.session.regenerate((err) => {
-                        if (err !== undefined) {
-                            next(err)
+                    jwt.sign({ username: username }, jwtSecret, { expiresIn: '365 days' }, (err: any, token: any) => {
+                        if (err === null || err === undefined) {
+                            res.cookie("authToken", token, {
+                                maxAge: 31536000000,
+                                secure: false,
+                                sameSite: 'strict',
+                                httpOnly: true
+                            })
+                            res.json({ auth_token: token })
                         } else {
-                            req.session.username = user.username
-                            res.json()
+                            next(err)
                         }
                     })
                 } else {
@@ -107,14 +129,27 @@ router.post('/login', async (req: TypedRequest<LoginBody>, res: Response, next: 
     }
 })
 
-router.post('/signout', restrict, (req: Request, res: Response, next: NextFunction) => {
-    req.session.destroy((err) => {
-        if (err === undefined) {
-            res.json()
-        } else {
-            next(err)
+router.post('/signout', restrict, async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userid = res.locals.username
+        let lastID = +(await redis.get(`${userid}:lastID`) ?? '0')
+        if (isNaN(lastID)) {
+            lastID = 0
         }
-    })
+        let firstID = +(await redis.get(`${userid}:firstID`) ?? '0')
+        if (isNaN(firstID)) {
+            firstID = 0
+        }
+
+        lastID += 1
+        await redis.set(`${userid}:lastID`, lastID)
+        await redis.set(`${userid}:firstID`, firstID)
+        await redis.set(`${userid}:${lastID}`, req.cookies.authToken, "EX", 31536000)
+
+        res.clearCookie('authToken').json()
+    } catch (err) {
+        next(err)
+    }
 })
 
 module.exports = router

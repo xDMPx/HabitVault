@@ -23,16 +23,49 @@ const formData = ref({
     name: props.habit?.name ?? "",
     description: props.habit?.description ?? ""
 })
+const showAlert = ref(false)
+const alertText = ref([""])
 
 function handleFormSubmit() {
+    if (!isValidHabitName(formData.value.name)) {
+        showAlert.value = true
+        alertText.value = ["Invalid habit name",
+            "Length between 3 to 20 characters.",
+            "Must start with a capital letter.",
+            "Can contain letters, numbers, periods, commas and '|', '/', '\\', '_', '-'."]
+        return
+    }
+    else if (formData.value.description.length > 140) {
+        showAlert.value = true
+        alertText.value = ["Habit description too long"]
+        return
+    }
+
     emit('formSubmitted', formData.value.name, formData.value.description)
     formData.value.name = ""
     formData.value.description = ""
+    showAlert.value = false
+}
+
+function isValidHabitName(username: string): Boolean {
+    const usernameRegex = /^[A-Z][a-zA-Z0-9.,|/\_-]{2,19}$/
+    return usernameRegex.test(username)
 }
 </script>
 
 <template>
-
+    <div role="alert" class="alert flex alert-error" v-if="showAlert">
+        <div class="grow">
+            <p v-for="alert in alertText">
+                {{ alert }}
+            </p>
+        </div>
+        <button class="flex">
+            <span class="grow material-symbols-outlined" @click="showAlert = false">
+                close
+            </span>
+        </button>
+    </div>
     <form @submit.prevent="handleFormSubmit">
         <div class="form-control">
             <label class="label">
