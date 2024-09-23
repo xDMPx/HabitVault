@@ -34,6 +34,24 @@
       ],
       "start-db": [
         "docker compose up"
+      ],
+      "update": [
+        "cd HabitVault-backend",
+        "echo '\nBackend:'",
+        "npm update",
+        "cd ../HabitVault",
+        "echo '\n-----'",
+        "echo '\nFrontend:'",
+        "npm update"
+      ],
+      "audit": [
+        "cd HabitVault-backend",
+        "echo '\nBackend:'",
+        "npm audit",
+        "cd ../HabitVault",
+        "echo '\n-----'",
+        "echo '\nFrontend:'",
+        "npm audit"
       ]
     }
   }
